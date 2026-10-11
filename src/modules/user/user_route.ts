@@ -10,14 +10,14 @@ import { AccountType } from "../../types/model_type.ts";
 
 const user_route = express.Router();
 
-user_route.get("/",authenticate_access,authorize([AccountType.Admin]),user_Controller.getAllUser);
+user_route.get("/",user_Controller.getAllUser);
 user_route.get("/userBoard",user_Controller.user_Count);
 user_route.get("/:id",...validate(user_validation.Id_Validate),user_Controller.getUserById);
 
 
 user_route.delete("/delete/:id",...validate(user_validation.Id_Validate),user_Controller.delete_user);
 
-user_route.post("/admin/:id",authenticate_access,...validate(user_validation.Id_Validate),user_Controller.AdminAccount);
+// user_route.post("/admin/:id",authenticate_access,...validate(user_validation.Id_Validate),user_Controller.AdminAccount);
 
 export {
     user_route

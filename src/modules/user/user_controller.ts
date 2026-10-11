@@ -15,9 +15,9 @@ import { AccountType} from "../../types/model_type.ts"
 const user_Count = async(req:Request,res:Response)=>{
    
   const [user, teacher, author] = await Promise.all([
-    prisma.account.count({ where: { type: AccountType.User } }),
-    prisma.account.count({ where: { type: AccountType.Teacher } }),
-    prisma.account.count({ where: { type: AccountType.Author } }),
+    prisma.person.count({ where: { role: AccountType.User } }),
+    prisma.person.count({ where: { role: AccountType.Teacher } }),
+    prisma.person.count({ where: { role: AccountType.Author } }),
   ]);
 
   response_Handler({
@@ -67,16 +67,18 @@ const getUserById = async(req:Request,res:Response)=>{
     const id = req.params.id as string;
    
     const person = await prisma.person.findFirst({
-        where:{id}
-        ,include:{
-            personImage:true,
-            accounts:{
-                include:{
-                    wallet:true
-                }
-            }
-        },omit:{
+        where:{id},
+        omit:{
             password:true
+        },include:{
+           teacherProfile :true,
+           authorProfile  : true,
+           adminProfile  : true,
+           wallet  : true,
+           otpCode   : true,
+           deviceSessions :true,
+           ownedLinks     :true, 
+           linkedFrom     :true,
         }
     })
 
@@ -141,50 +143,50 @@ const create_authorAccount = async(req:Request,res:Response)=>{
 
 //admin
 
- const AdminAccount = async(req:adminRequest,res:Response)=>{
+//  const AdminAccount = async(req:adminRequest,res:Response)=>{
 
-    const {phoneNumber,password} = req.body
-    const id = req.params.id as string;
+//     const {phoneNumber,password} = req.body
+//     const id = req.params.id as string;
 
-    const person = await prisma.person.findUnique({
-        where:{
-         id,
-         phoneNumber 
-        }
-    })
+//     const person = await prisma.person.findUnique({
+//         where:{
+//          id,
+//          phoneNumber 
+//         }
+//     })
 
-   if (!person || !(await Hash.compare_Password(password, person.password))) {
-        return custom_Error("invalid credentials", 401);
-    }
+//    if (!person || !(await Hash.compare_Password(password, person.password))) {
+//         return custom_Error("invalid credentials", 401);
+//     }
 
-    const account = await prisma.account.findFirst({
-        where:{
-          AND : [{personId:id},{type:"Admin"}]
-        }
-    })
+//     const account = await prisma.account.findFirst({
+//         where:{
+//           AND : [{personId:id},{type:"Admin"}]
+//         }
+//     })
 
-    if(account) custom_Error("your admin Account is Active",403);
+//     if(account) custom_Error("your admin Account is Active",403);
 
-    const adminAccount = await prisma.account.create({
-        data:{
-           type:"Admin",
-           personId:id,
-           wallet: {
-              create: {}
-             }
-        }
-    })
+//     const adminAccount = await prisma.account.create({
+//         data:{
+//            type:"Admin",
+//            personId:id,
+//            wallet: {
+//               create: {}
+//              }
+//         }
+//     })
 
-    response_Handler({
-        statusCode:200,
-        message:"your admin account created",
-        data:{adminAccount},
-        res
-    })
+//     response_Handler({
+//         statusCode:200,
+//         message:"your admin account created",
+//         data:{adminAccount},
+//         res
+//     })
 
     
 
-}
+// }
  
 
 
@@ -196,6 +198,6 @@ export default {
     getUserById,
     delete_user,
 
-    AdminAccount 
+    // AdminAccount 
     
 };
