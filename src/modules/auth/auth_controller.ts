@@ -11,11 +11,13 @@ import type {
     loginRequest,
     step1_ForgetPassword,
     step2_ResetPassword,
-   adminRequest
+  
 } from "./auth_types.ts";
 
 import { AccountType, type tokenType, type AuthRequest} from "../../types/model_type.ts"
 
+
+//authentication
 
 const user_Register = async(req:registerRequest,res:Response)=>{
     const {email,phoneNumber,password} = req.body;
@@ -153,6 +155,8 @@ const selectAccount = async(req:AuthRequest,res:Response)=>{
 
 }
 
+//token
+
 const refreshToken = async(req:AuthRequest,res:Response)=>{
 
      const user = req.user as tokenType;
@@ -281,58 +285,19 @@ const step2_resetPassword = async(req:step2_ResetPassword,res:Response)=>{
 
 }
 
-// teacher
-
- const teacherFormRequest = async(req:Request,res:Response)=>{
 
 
 
- }
+//admin
 
- const AdminAccount = async(req:adminRequest,res:Response)=>{
 
-    const {phoneNumber,password} = req.body
-    const id = req.params.id as string;
 
-    const person = await prisma.person.findUnique({
-        where:{
-         id,
-         phoneNumber 
-        }
-    })
 
-   if (!person || !(await Hash.compare_Password(password, person.password))) {
-        return custom_Error("invalid credentials", 401);
-    }
 
-    const account = await prisma.account.findFirst({
-        where:{
-          AND : [{personId:id},{type:"Admin"}]
-        }
-    })
 
-    if(account) custom_Error("your admin Account is Active",403);
 
-    const adminAccount = await prisma.account.create({
-        data:{
-           type:"Admin",
-           personId:id,
-           wallet: {
-              create: {}
-             }
-        }
-    })
 
-    response_Handler({
-        statusCode:200,
-        message:"your admin account created",
-        data:{adminAccount},
-        res
-    })
 
-    
-
-}
 
 export default {
     user_Register,
@@ -342,7 +307,5 @@ export default {
 
     step1_forgetPassword,
     step2_resetPassword,
-    
-    AdminAccount
     
 };

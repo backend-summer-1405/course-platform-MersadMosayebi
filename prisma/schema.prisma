@@ -125,6 +125,14 @@ model Wallet {
 
 }
 
+// ============ teacherForm ============
+
+// model teacherForm {
+//    id              String            @id @default(uuid())
+//    fullName        String
+//    createdAt       DateTime          @default(now())
+//    updatedAt       DateTime          @updatedAt
+// }
 
 // ============ images ============
 

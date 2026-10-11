@@ -1,7 +1,12 @@
 import {prisma} from "../../util/prisma.util.ts";
 import type { Request,Response } from "express";
+import Hash from "../../util/bcrypt.util.ts";
 
 import {response_Handler,custom_Error} from "../../middleware/response_hanlder.ts"
+
+import type{
+     adminRequest
+} from "./user_types.ts"
 
 import { AccountType} from "../../types/model_type.ts"
 
@@ -24,9 +29,16 @@ const user_Count = async(req:Request,res:Response)=>{
 
 }
 
+
 const editProfile = async(req:Request,res:Response)=>{
     //
 }
+
+const getProfileById = async(req:Request,res:Response)=>{
+    
+}
+
+
 
 
 //admin
@@ -97,6 +109,85 @@ const delete_user = async(req:Request,res:Response)=>{
 }
 
 
+// teacher_Form and teacherAccount
+
+const teacherFormRequest = async(req:Request,res:Response)=>{
+     
+}
+
+
+const getTeacherFormRequest = async(req:Request,res:Response)=>{
+
+}
+
+const getTeacherFormRequest_ById = async(req:Request,res:Response)=>{
+
+}
+
+const Step1_TeacherFormRequest_confirm = async(req:Request,res:Response)=>{
+
+}
+
+const Step2_activeTeacherAccount = async(req:Request,res:Response)=>{
+
+}
+
+//author
+//by admin.
+
+const create_authorAccount = async(req:Request,res:Response)=>{
+
+}
+
+//admin
+
+ const AdminAccount = async(req:adminRequest,res:Response)=>{
+
+    const {phoneNumber,password} = req.body
+    const id = req.params.id as string;
+
+    const person = await prisma.person.findUnique({
+        where:{
+         id,
+         phoneNumber 
+        }
+    })
+
+   if (!person || !(await Hash.compare_Password(password, person.password))) {
+        return custom_Error("invalid credentials", 401);
+    }
+
+    const account = await prisma.account.findFirst({
+        where:{
+          AND : [{personId:id},{type:"Admin"}]
+        }
+    })
+
+    if(account) custom_Error("your admin Account is Active",403);
+
+    const adminAccount = await prisma.account.create({
+        data:{
+           type:"Admin",
+           personId:id,
+           wallet: {
+              create: {}
+             }
+        }
+    })
+
+    response_Handler({
+        statusCode:200,
+        message:"your admin account created",
+        data:{adminAccount},
+        res
+    })
+
+    
+
+}
+ 
+
+
 export default {
     user_Count,
    
@@ -104,5 +195,7 @@ export default {
     getAllUser,
     getUserById,
     delete_user,
+
+    AdminAccount 
     
 };

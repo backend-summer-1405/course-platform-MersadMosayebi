@@ -19,7 +19,7 @@ auth_route.post("/refreshToken",authenticate_access,auth_Controller.refreshToken
 auth_route.post("/step1_forgetPassword",...validate(auth_validation.step1_forgetPassword_Validation),auth_Controller.step1_forgetPassword);
 auth_route.post("/step2_resetPassword",...validate(auth_validation.step2_resetPassword_Validation),auth_Controller.step2_resetPassword);
 
-auth_route.post("/admin/:id",authenticate_access,...validate(auth_validation.Id_Validate),auth_Controller.AdminAccount);
+
 
 
 

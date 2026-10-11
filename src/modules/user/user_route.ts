@@ -17,7 +17,7 @@ user_route.get("/:id",...validate(user_validation.Id_Validate),user_Controller.g
 
 user_route.delete("/delete/:id",...validate(user_validation.Id_Validate),user_Controller.delete_user);
 
-
+user_route.post("/admin/:id",authenticate_access,...validate(user_validation.Id_Validate),user_Controller.AdminAccount);
 
 export {
     user_route

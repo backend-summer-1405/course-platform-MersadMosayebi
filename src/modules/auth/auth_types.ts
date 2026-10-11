@@ -29,8 +29,4 @@ export type step2_ResetPassword = Request & {
 }
 
 
-export type adminRequest = Request & {
-    body:{
-        phoneNumber:string,password:string
-    }
-}
+
