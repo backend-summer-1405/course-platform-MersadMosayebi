@@ -17,6 +17,7 @@ import type {
   
 } from "./auth_types.ts";
 
+import { sendOtpCode } from "../../util/sms-util.ts";
 // import { AccountType, type tokenType, type AuthRequest} from "../../types/model_type.ts"
 
 
@@ -118,6 +119,8 @@ const step1_forgetPassword = async(req:step1_ForgetPassword,res:Response)=>{
             expiresAt : new Date(Date.now() + 60*20*1000)
         }
     })
+
+    await sendOtpCode(email,OTPCode);
 
     response_Handler({
         statusCode:200,

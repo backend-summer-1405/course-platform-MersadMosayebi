@@ -20,6 +20,8 @@ course platform API, built with Node.js, Express, Typescript, and Postgresql Dat
  -- *express-validator*
  -- *JWT*
  -- *bcrypt*
+ -- *nodemailer*
+
 
 
 
