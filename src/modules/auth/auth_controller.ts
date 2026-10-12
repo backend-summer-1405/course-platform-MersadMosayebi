@@ -11,165 +11,32 @@ import type {
     loginRequest,
     step1_ForgetPassword,
     step2_ResetPassword,
+    refreshTokenRequest,
+    linkAccountRequest,
+    switchAccountRequest,
   
 } from "./auth_types.ts";
 
-import { AccountType, type tokenType, type AuthRequest} from "../../types/model_type.ts"
-
-
-//authentication
-
-// const user_Register = async(req:registerRequest,res:Response)=>{
-//     const {email,phoneNumber,password} = req.body;
-
-
-//     const existingPerson = await prisma.person.findFirst({
-//         where: { OR: [{ email }, { phoneNumber }] },
-//     });
-
-//     if (existingPerson) custom_Error("email or phoneNumber is already registered", 409);
-
-//     const hashedPassword = await Hash.hash_Password(password);
-
-//      const person = await prisma.person.create({
-//          data: {
-//              ...(email && { email }),
-//              ...(phoneNumber && { phoneNumber }),
-//              password: hashedPassword,
-//              accounts: {
-//                  create: {
-//                      type: "User",
-//                      userProfile: { create: {} },
-//                      wallet: { create: {} },
-//                  },
-//              },
-//          },
-//          omit: { password: true },
-//          include: { accounts: { include: { userProfile: true, wallet: true } } },
-//      });
-
-//      const account = person.accounts[0];
-
-//     const accessRecord = { 
-//       personId: person.id,
-//       accountId: account.id,
-//       role : account.type
-//      }
-
-//     const accessToken = Token.create_accessToken(accessRecord);
-     
-//    response_Handler({statusCode:201,message:"user registered successfully",data:{user:person,accessToken:accessToken},res});
-
-// }
-
-// const user_Login = async(req:loginRequest,res:Response)=>{
-//     const {email,phoneNumber,password} = req.body;
-    
-//     const person = await prisma.person.findUnique({
-//         where: email !== null ? { email } : { phoneNumber: phoneNumber! },
-//         include: { accounts: { where: {isActive:true} } },
-//     });
-
-//     if (!person || !(await Hash.compare_Password(password, person.password))) {
-//         return custom_Error("invalid credentials", 401);
-//     }
-
-//     if (person.accounts.length === 0) {
-//      custom_Error("no active account found", 403);
-//      return
-//     }
-
-//     if (person.accounts.length === 1) {
-//     const account = person.accounts[0];
-
-//     const accessRecord = { 
-//       personId: person.id,
-//       accountId: account.id,
-//       role : account.type
-//      }
-
-//     const accessToken = Token.create_accessToken(accessRecord);
-
-//     response_Handler({ statusCode: 200, message: "login successful", data: {user:accessRecord,accessToken: accessToken }, res });
-//   }
+// import { AccountType, type tokenType, type AuthRequest} from "../../types/model_type.ts"
 
 
 
-//     const tempRecord = { 
-//       personId: person.id,
-//      }
+//refreshToken
 
-//     const token = Token.create_tempToken(tempRecord);
-    
-//       response_Handler({
-//       statusCode:200,
-//       message:"login successful",
-//       data:{
-//         accounts: person.accounts.map((e) => ({ id: e.id, type: e.type })),
-//         tempToken:token
-//       }
-//       ,res
-//     });
-// }
-
-// const selectAccount = async(req:AuthRequest,res:Response)=>{
-//     interface userAccountType{
-//     accountId:string
-//     }
-
-//     const {accountId} = req.body as userAccountType;
-//     const user = req.user as tokenType;
-    
-//     const theAccount = await prisma.account.findFirst({
-//        where: { 
-//           id: accountId,
-//           personId: user.personId,
-//           isActive: true 
-//         },
-//     })
-
-//     if(!theAccount) {
-//         custom_Error("no account found ",403);
-//         return;
-//     };
-
-//      const accessRecord = { 
-//        personId: user.personId,
-//        accountId: accountId,
-//        role: theAccount.type,
-//      }
-    
-
-//     const token = Token.create_accessToken(accessRecord);
-
-//      response_Handler({
-//       statusCode: 200,
-//       message: "Login account successfully",
-//       data: { 
-//         account: accessRecord,
-//         accessToken: token }
-//      ,res
-//      });
-
-
-// }
-
-//token
-
-const refreshToken = async(req:Request,res:Response)=>{
+const refreshToken = async(req:refreshTokenRequest,res:Response)=>{
 
   const deviceId = req.headers['x-device-id'] as string
-  const { refreshToken } = req.body
+  const {refreshToken} = req.body;
 
   if (!deviceId) {
    custom_Error("deviceId required",400);
    return;
   }
 
-  if (!refreshToken) {
-    custom_Error("refreshToken is required",400);
-    return;
-  }
+  // if (!refreshToken) {
+  //   custom_Error("refreshToken is required",400);
+  //   return;
+  // }
 
   const hashedToken = Token.hash_refreshToken(refreshToken)
 
@@ -220,10 +87,6 @@ const refreshToken = async(req:Request,res:Response)=>{
   })
 
 }  
-
-
-
-
 
 //forgetPassword
 
@@ -336,12 +199,10 @@ const step2_resetPassword = async(req:step2_ResetPassword,res:Response)=>{
 }
 
 
+//authentication
 
 
-////////////////////////////
-
-
-const register = async(req: Request, res: Response)=> {
+const register = async(req: registerRequest, res: Response)=> {
 
   const { email, phoneNumber, password } = req.body
 
@@ -376,7 +237,7 @@ const register = async(req: Request, res: Response)=> {
     }) 
 }
 
-const login =async(req: Request, res: Response)=> {
+const login =async(req: loginRequest, res: Response)=> {
   const { email, phoneNumber, password} = req.body
   const deviceId = req.headers['x-device-id'] as string;
   if(!deviceId){
@@ -425,7 +286,10 @@ const login =async(req: Request, res: Response)=> {
      }) 
 }
 
- const linkAccount = async (req: AuthRequest, res: Response) => {
+
+//switchAccount Process
+
+ const linkAccount = async (req: linkAccountRequest, res: Response) => {
   const { targetPersonId } = req.body;
   const currentPersonId = req.user?.personId;   
   const deviceId = req.headers['x-device-id'] as string;
@@ -514,7 +378,7 @@ const login =async(req: Request, res: Response)=> {
 };
 
 
-const switchAccount =async(req: AuthRequest, res: Response)=> {
+const switchAccount =async(req: switchAccountRequest, res: Response)=> {
   const currentPersonId = req.user?.personId; 
   const { switchToken, targetPersonId} = req.body;
   const deviceId = req.headers["x-device-id"] as string;

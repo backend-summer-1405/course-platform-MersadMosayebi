@@ -124,6 +124,7 @@ model AuthorProfile {
   person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
 }
 
+
 model AdminProfile {
   id        String   @id @default(uuid())
   personId  String   @unique
@@ -131,6 +132,17 @@ model AdminProfile {
   createdAt DateTime @default(now())
 
   person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+}
+
+// ============ Request_Form ============
+
+model adminFormRequest {
+   id        String   @id @default(uuid())
+   personId  String   @unique
+   phoneNumber String?
+   email       String?
+   createdAt DateTime @default(now())
+
 }
 
 // ============ Wallet ============

@@ -30,17 +30,6 @@ const user_Count = async(req:Request,res:Response)=>{
 }
 
 
-const editProfile = async(req:Request,res:Response)=>{
-    //
-}
-
-const getProfileById = async(req:Request,res:Response)=>{
-    
-}
-
-
-
-
 //admin
 
 const getAllUser = async(req:Request,res:Response)=>{
@@ -92,6 +81,27 @@ const getUserById = async(req:Request,res:Response)=>{
     })
 }
 
+const getUserProfile = async(req:Request,res:Response)=>{
+    const id = req.params.id as string;
+
+    const userProfile = await prisma.person.findFirst({
+        where:{id},
+        include:{
+            teacherProfile:{where:{isActive:true}},
+            adminProfile:{where:{isActive:true}},
+            authorProfile:{where:{isActive:true}}
+        }
+    })
+    
+     response_Handler({
+        statusCode:200,
+        message:"Form result",
+        data:{userProfile},
+        res
+    })
+
+}
+
 
 const delete_user = async(req:Request,res:Response)=>{
       const id = req.params.id as string;
@@ -134,70 +144,220 @@ const Step2_activeTeacherAccount = async(req:Request,res:Response)=>{
 
 }
 
-//author
-//by admin.
-
-const create_authorAccount = async(req:Request,res:Response)=>{
-
-}
 
 //admin
 
-//  const AdminAccount = async(req:adminRequest,res:Response)=>{
+const adminForm_Request = async(req:Request,res:Response)=>{
 
-//     const {phoneNumber,password} = req.body
-//     const id = req.params.id as string;
+    const id = req.params.id as string;
+    const {phoneNumber,email} = req.body;
 
-//     const person = await prisma.person.findUnique({
-//         where:{
-//          id,
-//          phoneNumber 
-//         }
-//     })
+     const person = await prisma.person.findFirst({
+        where:{
+         AND:[{id},{OR:[{email},{phoneNumber}]}]
+        }
+    })
 
-//    if (!person || !(await Hash.compare_Password(password, person.password))) {
-//         return custom_Error("invalid credentials", 401);
-//     }
+    if (!person) {
+         custom_Error("person not found", 404);
+         return;
+     }
 
-//     const account = await prisma.account.findFirst({
-//         where:{
-//           AND : [{personId:id},{type:"Admin"}]
-//         }
-//     })
+     if(person.role === AccountType.Admin){
+        custom_Error("you are already admin",409);
+        return;
+     }
 
-//     if(account) custom_Error("your admin Account is Active",403);
+     const existing = await prisma.adminFormRequest.findUnique({
+       where: { personId: person.id},
+     });
+     
+     if (existing) {
+       custom_Error("you already have request", 409);
+       return;
+     }
+     
+     const Form = await prisma.adminFormRequest.create({
+        data:{
+            personId:person.id,
+           ...(phoneNumber && { phoneNumber }),
+            ...(email && { email }),
+        }
+     })
 
-//     const adminAccount = await prisma.account.create({
-//         data:{
-//            type:"Admin",
-//            personId:id,
-//            wallet: {
-//               create: {}
-//              }
-//         }
-//     })
 
-//     response_Handler({
-//         statusCode:200,
-//         message:"your admin account created",
-//         data:{adminAccount},
-//         res
-//     })
+    response_Handler({
+        statusCode:200,
+        message:"your Request is created",
+        data:{message:"after confirmation, you will be admin",Form:Form},
+        res
+    })
+}
 
+const getAllAdminFormRequest = async(req:Request,res:Response)=>{
     
+    const form = await prisma.adminFormRequest.findMany({});
 
-// }
+    response_Handler({
+        statusCode:200,
+        message:"Form result",
+        data:{form},
+        res
+    })
+}
+
+
+ const role_AdminProfile = async(req:adminRequest,res:Response)=>{
+
+    const id = req.params.id as string;
+
+     const person = await prisma.person.findUnique({
+        where:{
+         id,
+        }
+    })
+
+    const personForm = await prisma.adminFormRequest.findFirst({
+        where:{personId:id}
+    })
+
+    if (!person || !personForm) {
+         custom_Error("person not found or person wasn't request for become admin", 403);
+         return;
+     }
+
+     if(person.role === AccountType.Admin){
+        custom_Error("user is already admin",409);
+        return;
+     }
+
+   const result = await prisma.$transaction(async(pr):Promise<object>=>{
+    
+    await Promise.all([
+          pr.teacherProfile.updateMany({
+            where: { personId:person.id, isActive: true },
+            data: { isActive: false },
+          }),
+          pr.authorProfile.updateMany({
+            where: { personId:person.id, isActive: true },
+            data: { isActive: false },
+          }),
+      ]);
+
+      const adminProfile = await pr.adminProfile.upsert({
+        where:{personId:person.id},
+        update:{isActive:true},
+        create:{personId:person.id}
+      })
+
+      const Form = await pr.adminFormRequest.delete({
+        where:{personId:person.id}
+      })
+
+       const updatePerson = await pr.person.update({
+        where:{id},
+        data:{
+            role:AccountType.Admin
+        },omit:{
+            password:true
+        },include:{
+            adminProfile:true
+        }
+      })
+     
+      return {updatePerson}
+     
+   }) 
+   
+
+    response_Handler({
+        statusCode:200,
+        message:"your are admin now!",
+        data:{user:result},
+        res
+    })
+}
+
+//author
+
+ const role_AuthorProfile = async(req:adminRequest,res:Response)=>{
+
+    const id = req.params.id as string;
+
+     const person = await prisma.person.findUnique({
+        where:{
+         id,
+        }
+    })
+
+    if (!person) {
+         custom_Error("invalid credentials", 401);
+         return;
+     }
+
+     if(person.role === AccountType.Author){
+        custom_Error("user is already Author",409);
+        return;
+     }
+
+   const result = await prisma.$transaction(async(pr):Promise<object>=>{
+    
+    await Promise.all([
+          pr.teacherProfile.updateMany({
+            where: { personId:person.id, isActive: true },
+            data: { isActive: false },
+          }),
+          pr.adminProfile.updateMany({
+            where: { personId:person.id, isActive: true },
+            data: { isActive: false },
+          }),
+      ]);
+
+      const authorProfile = await pr.authorProfile.upsert({
+        where:{personId:person.id},
+        update:{isActive:true},
+        create:{personId:person.id}
+      })
+
+       const updatePerson = await pr.person.update({
+        where:{id},
+        data:{
+            role:AccountType.Author
+        },omit:{
+            password:true
+        },include:{
+            authorProfile:true
+        }
+      })
+     
+      return {updatePerson}
+     
+   }) 
+   
+
+    response_Handler({
+        statusCode:200,
+        message:"user is author from now!",
+        data:{user:result},
+        res
+    })
+}
  
+
+
 
 
 export default {
     user_Count,
    
-
     getAllUser,
     getUserById,
+    getUserProfile,
     delete_user,
 
-    // AdminAccount 
+    adminForm_Request,
+    role_AdminProfile,
+    role_AuthorProfile,
+   getAllAdminFormRequest
     
 };

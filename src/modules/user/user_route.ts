@@ -12,12 +12,17 @@ const user_route = express.Router();
 
 user_route.get("/",user_Controller.getAllUser);
 user_route.get("/userBoard",user_Controller.user_Count);
+
+user_route.get("/getAllAdminFormRequest",authorize(["Admin"]),user_Controller.getAllAdminFormRequest);
+
+user_route.get("/profile/:id",user_Controller.getUserProfile);
 user_route.get("/:id",...validate(user_validation.Id_Validate),user_Controller.getUserById);
-
-
 user_route.delete("/delete/:id",...validate(user_validation.Id_Validate),user_Controller.delete_user);
 
-// user_route.post("/admin/:id",authenticate_access,...validate(user_validation.Id_Validate),user_Controller.AdminAccount);
+
+user_route.post("/adminFormRequest/:id",authenticate_access,authorize(["User","Admin","Teacher","Author"]),validate(user_validation.Id_Validate),user_Controller.adminForm_Request);
+user_route.post("/roleAdmin/:id",authenticate_access,authorize(["Admin"]),validate(user_validation.adminRole_Validation),user_Controller.role_AdminProfile);
+user_route.post("/roleAuthor/:id",authenticate_access,authorize(["Admin"]),...validate(user_validation.Id_Validate),user_Controller.role_AuthorProfile);
 
 export {
     user_route

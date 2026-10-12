@@ -15,7 +15,7 @@ const password_Validation = (min: number) => body("password")
     .isString().withMessage("password must be a string")
     .isLength({ min }).withMessage(`password must contain at least ${min} characters`)
 
-    
+const body_Validation = () => body().isObject({ strict: true }).withMessage("request body must be an object")    
 
 const Id_Validate = [
      param("id")
@@ -23,5 +23,17 @@ const Id_Validate = [
 ]
 
 
+const adminRole_Validation = [
+      body_Validation()
+      .custom((value) => (value.email !== undefined) !== (value.phoneNumber !== undefined))
+        .withMessage("provide exactly one of email or phoneNumber"),
+    email_Validation().optional(),
+    phone_Validation().optional(),
+]
 
-export default{ Id_Validate};
+
+
+export default{
+     Id_Validate,
+     adminRole_Validation,
+    };
