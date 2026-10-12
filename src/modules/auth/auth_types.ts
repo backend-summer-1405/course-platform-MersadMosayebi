@@ -1,4 +1,5 @@
 import type { Request } from "express"
+import type { AuthRequest } from "../../types/model_type";
 
 
 export type registerRequest = Request & {
@@ -28,9 +29,26 @@ export type step2_ResetPassword = Request & {
 
 }
 
+export type refreshTokenRequest = Request & {
+   body:{
+    refreshToken:string
+   },
+  
+}
 
-export type adminRequest = Request & {
+export type linkAccountRequest = AuthRequest & {
     body:{
-        phoneNumber:string,password:string
+      targetPersonId:string
     }
 }
+
+export type switchAccountRequest = AuthRequest & {
+    body:{
+      targetPersonId:string,
+       switchToken:string
+    }
+}
+
+
+
+

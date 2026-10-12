@@ -56,6 +56,29 @@ const step2_resetPassword_Validation = [
      password_Validation(8),
 ]
 
+const refreshToken_Validation = [
+    body_Validation()
+    ,body("refreshToken")
+    .isString().withMessage("refreshToken isn't valid")
+]
+
+const linkeAccount_Validation = [
+     body_Validation()
+     ,body("targetPersonId")
+     .isUUID().withMessage("targetPersonId isn't valid")
+     
+]
+
+const switchAccount_Validation = [
+    body_Validation(),
+    body("targetPersonId")
+     .isUUID().withMessage("targetPersonId isn't valid"),
+    body(" switchToken")
+     .isString().withMessage("switchToken isn't valid"), 
+
+
+]
+
 const Id_Validate = [
      param("id")
      .isUUID()
@@ -72,7 +95,11 @@ export default{
       login_Validation,
       Id_Validate ,
       IdBody_Validate,
+      refreshToken_Validation,
       
       step1_forgetPassword_Validation,
-      step2_resetPassword_Validation
+      step2_resetPassword_Validation,
+
+      linkeAccount_Validation,
+      switchAccount_Validation,
     };
