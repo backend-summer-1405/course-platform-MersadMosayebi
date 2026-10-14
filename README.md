@@ -21,6 +21,8 @@ course platform API, built with Node.js, Express, Typescript, and Postgresql Dat
  -- *JWT*
  -- *bcrypt*
  -- *nodemailer*
+ -- *jalaali-js (DateFormat)*
+ -- *multer*
 
 
 

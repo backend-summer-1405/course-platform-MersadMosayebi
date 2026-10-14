@@ -14,6 +14,12 @@ enum AccountType {
   Admin
 }
 
+enum FormRequestStatus {
+   Pending
+   Approved
+   Rejected
+}
+
 // ============ Person ============
 
 model Person {
@@ -33,6 +39,8 @@ model Person {
   adminProfile   AdminProfile?
   wallet         Wallet?
   otpCode        otpCode[]
+
+  teacherFormRequest TeacherFormRequest[]
 
   deviceSessions DeviceSession[]
   ownedLinks     LinkedAccount[] @relation("Owner")
@@ -106,8 +114,11 @@ model TeacherProfile {
   id              String   @id @default(uuid())
   personId        String   @unique
   bio             String?
-  expertise       String
+
+  degree          String
+  fieldOfwork     String
   experienceYears Int
+  
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
 
@@ -143,6 +154,27 @@ model adminFormRequest {
    email       String?
    createdAt DateTime @default(now())
 
+}
+
+model TeacherFormRequest {
+  id              String            @id @default(uuid())
+  personId        String            
+  fullName        String
+  ID_Card         String
+  resumeUrl       String
+  fieldOfwork     String
+  experienceYears Int
+  AcceptRulesOfWebSite  Boolean
+  degree          String
+  birthDate       DateTime @db.Date
+  
+  status          FormRequestStatus @default(Pending)
+  rejectionReason String?
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  person Person @relation(fields: [personId],references: [id],onDelete:Cascade)
 }
 
 // ============ Wallet ============

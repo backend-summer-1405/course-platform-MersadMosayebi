@@ -15,6 +15,7 @@
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.6",
+    "@types/jalaali-js": "^1.2.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.6.4",
     "@types/nodemailer": "^8.0.2",
@@ -26,10 +27,13 @@
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
+    "@types/multer": "^2.3.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^18.0.5",
     "express-validator": "^7.3.2",
+    "jalaali-js": "^2.0.1",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.4.0",
     "nodemailer": "^10.1.0",
     "pg": "^8.23.1",
     "prisma": "^7.10.0"

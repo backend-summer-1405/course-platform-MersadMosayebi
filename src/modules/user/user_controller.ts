@@ -2,10 +2,16 @@ import {prisma} from "../../util/prisma.util.ts";
 import type { Request,Response } from "express";
 import Hash from "../../util/bcrypt.util.ts";
 
-import {response_Handler,custom_Error} from "../../middleware/response_hanlder.ts"
+import {response_Handler,custom_Error} from "../../middleware/response_hanlder.ts";
+
+import * as jalaali from "jalaali-js";
+
+import "dotenv/config";
+
 
 import type{
-     adminRequest
+     adminRequest,
+     teacherFormRequest
 } from "./user_types.ts"
 
 import { AccountType} from "../../types/model_type.ts"
@@ -123,26 +129,261 @@ const delete_user = async(req:Request,res:Response)=>{
 
 // teacher_Form and teacherAccount
 
-const teacherFormRequest = async(req:Request,res:Response)=>{
-     
+const createteacherFormRequest = async(req:teacherFormRequest,res:Response)=>{
+     const {
+        personId,
+        fullName,
+        ID_Card,
+        birthDate,
+        fieldOfwork,
+        experienceYears,
+        degree,
+        AcceptRulesOfWebSite
+    } = req.body 
+
+    const resume = req.file;
+   
+    const person = await prisma.person.findFirst({
+        where:{id:personId}
+    })
+
+    if(!person){
+        custom_Error("user not found",404);
+        return;
+    }
+
+    if(person.role === AccountType.Teacher){
+        custom_Error("user is already Teacher",409);
+        return;
+     }
+
+    const experienceYear:number = Number(experienceYears);
+    const  AcceptRulesOfWebsite:boolean = Boolean(AcceptRulesOfWebSite);
+
+    const [jy, jm, jd] = birthDate.split("/").map(Number);
+    const { gy, gm, gd } = jalaali.toGregorian(jy, jm, jd);
+
+    
+
+     if(!resume) {
+        custom_Error("no resume uploaded",400);
+        return;
+    }
+
+    const baseUrl = process.env.BASE_URL;
+
+    const resumeUrl = `${baseUrl}/uploads/user/resume/${resume.filename}`;
+
+
+    const theForm = await prisma.teacherFormRequest.create({
+        data:{
+            personId,
+            fullName,
+            ID_Card,
+            birthDate:new Date(gy, gm - 1, gd),
+            fieldOfwork,
+            experienceYears:experienceYear,
+            degree,
+            AcceptRulesOfWebSite:AcceptRulesOfWebsite,
+            resumeUrl : resumeUrl
+        }
+    })
+
+    response_Handler({
+        statusCode:201,
+        message:"form created",
+        data:{},
+        res
+    })
+
 }
 
 
-const getTeacherFormRequest = async(req:Request,res:Response)=>{
+const getAllTeacherFormRequest = async(req:Request,res:Response)=>{
+   
+    const Forms = await prisma.teacherFormRequest.findMany({
+       
+    })
 
+    if(!Forms || Forms.length === 0){
+         response_Handler({
+        statusCode:200,
+        message:"result",
+        data:{
+           Forms
+        },
+        res
+    })
+    }
+    
+    const PendingForm = Forms.filter(el => el.status === "Pending");
+    const ApprovedForm = Forms.filter(el => el.status === "Approved");
+    const RejectedForm = Forms.filter(el => el.status === "Rejected");
+
+    response_Handler({
+        statusCode:200,
+        message:"result",
+        data:{
+            PendingForm : PendingForm,
+            ApprovedForm:ApprovedForm,
+            RejectedForm:RejectedForm
+        },
+        res
+    })
+
+
+    
 }
 
 const getTeacherFormRequest_ById = async(req:Request,res:Response)=>{
+   const id = req.params.id as string;
+
+    const person = await prisma.person.findFirst({
+        where:{id}
+    })
+
+    if(!person){
+        custom_Error("user not found",404)
+        return;
+    }
+
+    const Forms = await prisma.teacherFormRequest.findMany({
+        where:{personId:id}
+    })
+
+    if(!Forms || Forms.length === 0){
+        custom_Error("no form found",404);
+        return;
+    }
+    
+    const PendingForm = Forms.filter(el => el.status === "Pending");
+    const ApprovedForm = Forms.filter(el => el.status === "Approved");
+    const RejectedForm = Forms.filter(el => el.status === "Rejected");
+
+    response_Handler({
+        statusCode:200,
+        message:"result",
+        data:{
+            PendingForm : PendingForm,
+            ApprovedForm:ApprovedForm,
+            RejectedForm:RejectedForm
+        },
+        res
+    })
+
 
 }
 
-const Step1_TeacherFormRequest_confirm = async(req:Request,res:Response)=>{
+const role_TeacherProfile = async(req:Request,res:Response)=>{
+     const id = req.params.id as string;
+     const status = req.body.status as "Approved" | "Rejected";
+     const rejectionReason = req.body as string;
 
+     const person = await prisma.person.findUnique({
+        where:{
+         id,
+        }
+    })
+
+    if (!status){
+        custom_Error("bad request",409);
+        return;
+    }
+
+    const personForm = await prisma.teacherFormRequest.findFirst({
+        where:{personId:id,status:"Pending"},
+    })
+
+    if (!person || !personForm) {
+         custom_Error("person not found or person wasn't request for become teacher", 403);
+         return;
+     }
+
+     if(person.role === AccountType.Teacher){
+        custom_Error("user is already Teacher",409);
+        return;
+     }
+
+   
+     if(status === "Rejected"){
+        
+       const theForm = await prisma.teacherFormRequest.updateMany({
+          where:{personId:id,status:"Pending"},
+        data:{
+            status:"Rejected",
+            rejectionReason:rejectionReason
+        }
+      })
+       
+      response_Handler({
+        statusCode:200,
+        message:"the form Rejected",
+        data:{theForm},
+        res
+      })
+
+      return;
+     }
+
+
+ 
+   const result = await prisma.$transaction(async(pr):Promise<object>=>{
+    
+    await Promise.all([
+          pr.adminProfile.updateMany({
+            where: { personId:person.id},
+            data: { isActive: false },
+          }),
+          pr.authorProfile.updateMany({
+            where: { personId:person.id},
+            data: { isActive: false },
+          }),
+      ]);
+
+      const theForm = await pr.teacherFormRequest.updateMany({
+          where:{personId:id},
+        data:{
+            status:"Approved"
+        }
+      })
+
+      const teacherProfile = await pr.teacherProfile.upsert({
+        where:{personId:person.id},
+        update:{isActive:true},
+        create:{
+            personId:person.id,
+            degree:personForm.degree,
+            experienceYears:personForm.experienceYears,
+            fieldOfwork:personForm.fieldOfwork
+        }
+      })
+
+       const updatePerson = await pr.person.update({
+        where:{id},
+        data:{
+            role:AccountType.Teacher,
+            displayName:personForm.fullName
+        },omit:{
+            password:true
+        },include:{
+            teacherProfile:true
+        }
+      })
+     
+      return {updatePerson}
+     
+   }) 
+   
+
+    response_Handler({
+        statusCode:200,
+        message:"user is now Teacher!",
+        data:{user:result},
+        res
+    })
 }
 
-const Step2_activeTeacherAccount = async(req:Request,res:Response)=>{
 
-}
 
 
 //admin
@@ -235,11 +476,11 @@ const getAllAdminFormRequest = async(req:Request,res:Response)=>{
     
     await Promise.all([
           pr.teacherProfile.updateMany({
-            where: { personId:person.id, isActive: true },
+            where: { personId:person.id},
             data: { isActive: false },
           }),
           pr.authorProfile.updateMany({
-            where: { personId:person.id, isActive: true },
+            where: { personId:person.id},
             data: { isActive: false },
           }),
       ]);
@@ -304,11 +545,11 @@ const getAllAdminFormRequest = async(req:Request,res:Response)=>{
     
     await Promise.all([
           pr.teacherProfile.updateMany({
-            where: { personId:person.id, isActive: true },
+            where: { personId:person.id},
             data: { isActive: false },
           }),
           pr.adminProfile.updateMany({
-            where: { personId:person.id, isActive: true },
+            where: { personId:person.id},
             data: { isActive: false },
           }),
       ]);
@@ -358,6 +599,11 @@ export default {
     adminForm_Request,
     role_AdminProfile,
     role_AuthorProfile,
-   getAllAdminFormRequest
+   getAllAdminFormRequest,
+
+   createteacherFormRequest,
+   getTeacherFormRequest_ById,
+   getAllTeacherFormRequest,
+   role_TeacherProfile
     
 };
