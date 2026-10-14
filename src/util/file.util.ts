@@ -23,6 +23,7 @@ class imageUploader{
 
 const userImageUpload = new imageUploader("user/profileImage");
 const userResumeUpload = new imageUploader("user/resume");
+
 const courseImageUpload = new imageUploader("course");
 
 const userImage_Uploader = multer({storage : userImageUpload.diskStorage});

@@ -189,6 +189,16 @@ model Wallet {
   person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
 }
 
+
+// ============ course ============
+
+model course {
+      id     String     @id @default(uuid())
+}
+
+
+
+
 // ============ Images ============
 
 model personImage {

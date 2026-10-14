@@ -3,6 +3,7 @@ import type { Request,Response,RequestHandler } from "express";
 import {globalError_Middleware} from "./middleware/error_middleware.ts";
 import "dotenv/config";
 import { user_route } from "./modules/user/user_route.ts";
+import { course_route } from "./modules/course/course_route.ts";
 import {auth_route} from "./modules/auth/auth_route.ts";
 
 const app = express();
@@ -10,6 +11,7 @@ const port = process.env.PORT;
 app.use(express.json());
 
 app.use("/user",auth_route,user_route);
+app.use("/course",course_route);
 
  
 app.get("/",(req:Request,res:Response)=>{
