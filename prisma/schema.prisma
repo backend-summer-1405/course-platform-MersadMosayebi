@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -19,126 +14,155 @@ enum AccountType {
   Admin
 }
 
-
-
 // ============ Person ============
 
 model Person {
-  id              String            @id @default(uuid())
-  email           String?           @unique
-  phoneNumber     String?            @unique
-  password        String
+  id             String          @id @default(uuid())
+  email          String?         @unique
+  phoneNumber    String?         @unique
+  password       String
   displayName    String?
-  bio            String?
   profileImage   String?
   personImage    personImage[]
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  role           AccountType     @default(User)
 
-  accounts        Account[]
-  otpCode         otpCode[]
-}
-
-
-// ============ OTPCode ============
-
-model otpCode {
-   id         Int  @id @default(autoincrement())
-   personId   String @unique
-   otpCode    String
-   expiresAt DateTime
-   used      Boolean  @default(false)
-   createdAt DateTime @default(now())
- 
-   person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
-}
-
-// ============ userAccount ============
-
-model Account {
-  id             String      @id @default(uuid())
-  type           AccountType
-  isActive       Boolean     @default(true)
-  personId       String
-  person         Person      @relation(fields: [personId], references: [id],onDelete: Cascade)
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
-
-  userProfile    UserProfile?
   teacherProfile TeacherProfile?
   authorProfile  AuthorProfile?
   adminProfile   AdminProfile?
   wallet         Wallet?
+  otpCode        otpCode[]
 
+  deviceSessions DeviceSession[]
+  ownedLinks     LinkedAccount[] @relation("Owner")
+  linkedFrom     LinkedAccount[] @relation("Linked")
+}
+
+// ============ Session ============
+
+model DeviceSession {
+  id                  String               @id @default(uuid())
+  deviceId            String
+  personId            String
+  refreshToken        String?              
+  refreshTokenExpiresAt DateTime?
+  updatedAt           DateTime             @updatedAt
+  person              Person               @relation(fields: [personId], references: [id], onDelete: Cascade)
+  linkedAccountTokens LinkedAccountToken[]
+
+  @@unique([deviceId, personId])
 }
 
 
+// ============ LinkedAccount ============
 
-// ============ profile ============
-
-model UserProfile {
+model LinkedAccount {
   id        String   @id @default(uuid())
-  accountId String   @unique
-  account   Account  @relation(fields: [accountId], references: [id],onDelete: Cascade)
+  personId  String
+  linkedId  String
+  person    Person   @relation("Owner", fields: [personId], references: [id])
+  linked    Person   @relation("Linked", fields: [linkedId], references: [id])
   createdAt DateTime @default(now())
 
+  linkedAccountTokens LinkedAccountToken[]
+
+  @@unique([personId, linkedId])
 }
+
+// ============ LinkedAccountToken ============
+
+model LinkedAccountToken {
+  id                   String        @id @default(uuid())
+  linkedAccountId      String  @unique
+  deviceSessionId      String
+  switchToken          String?      
+  switchTokenExpiresAt DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  linkedAccount  LinkedAccount  @relation(fields: [linkedAccountId], references: [id], onDelete: Cascade)
+  deviceSession  DeviceSession  @relation(fields: [deviceSessionId], references: [id], onDelete: Cascade)
+
+  @@unique([linkedAccountId, deviceSessionId])
+}
+
+// ============ OTPCode ============
+
+model otpCode {
+  id        Int      @id @default(autoincrement())
+  personId  String   
+  otpCode   String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+}
+
+// ============ Profiles ============
 
 model TeacherProfile {
   id              String   @id @default(uuid())
-  accountId       String   @unique
-  account         Account  @relation(fields: [accountId], references: [id],onDelete: Cascade)
+  personId        String   @unique
+  bio             String?
   expertise       String
   experienceYears Int
-  bio             String?
+  isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
 
-  // courses  Course[]
-  // podcasts Podcast[]
+  person          Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
 }
 
 model AuthorProfile {
   id        String   @id @default(uuid())
-  accountId String   @unique
-  account   Account  @relation(fields: [accountId], references: [id],onDelete: Cascade)
+  personId  String   @unique
+  bio       String?
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  // news News[]
+  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
 }
+
 
 model AdminProfile {
   id        String   @id @default(uuid())
-  accountId String   @unique
-  account   Account  @relation(fields: [accountId], references: [id],onDelete: Cascade)
+  personId  String   @unique
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
+
+  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
 }
 
-// ============ wallet ============
+// ============ Request_Form ============
+
+model adminFormRequest {
+   id        String   @id @default(uuid())
+   personId  String   @unique
+   phoneNumber String?
+   email       String?
+   createdAt DateTime @default(now())
+
+}
+
+// ============ Wallet ============
 
 model Wallet {
   id        String   @id @default(uuid())
-  balance   Int      @default(0) 
-  accountId String   @unique
-  account   Account  @relation(fields: [accountId], references: [id],onDelete: Cascade)
+  balance   Int      @default(0)
+  personId  String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
 }
 
-// ============ teacherForm ============
-
-// model teacherForm {
-//    id              String            @id @default(uuid())
-//    fullName        String
-//    createdAt       DateTime          @default(now())
-//    updatedAt       DateTime          @updatedAt
-// }
-
-// ============ images ============
+// ============ Images ============
 
 model personImage {
-   id           String  @id @default(uuid())
-   url          String
-   personId     String
-   person Person @relation(fields: [personId], references: [id],onDelete: Cascade)
+  id       String @id @default(uuid())
+  url      String
+  personId String
+
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 }

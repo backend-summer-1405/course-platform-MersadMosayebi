@@ -20,7 +20,6 @@ const authenticate_access = (req:AuthRequest,res:Response,next:NextFunction)=>{
 
     req.user = {
          personId:checkToken.personId,
-         accountId:checkToken.accountId,
          role:checkToken.role 
     }
 

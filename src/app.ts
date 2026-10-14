@@ -9,7 +9,7 @@ const app = express();
 const port = process.env.PORT;
 app.use(express.json());
 
-app.use("/user",user_route,auth_route);
+app.use("/user",auth_route,user_route);
 
  
 app.get("/",(req:Request,res:Response)=>{
