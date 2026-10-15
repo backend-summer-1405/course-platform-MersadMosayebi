@@ -204,13 +204,14 @@ model course {
       description  String
       price       Int
       teacherName  String?
+      courseCoverUrl String
       isPublished Boolean  @default(false)
       createdAt   DateTime @default(now())
       updatedAt   DateTime @updatedAt
-    
+      
       teacherId    String?
       teacher      TeacherProfile?    @relation(fields: [teacherId], references: [id])
-
+  
       courseTopic  courseTopic[]
       courseImage courseImage[]
       category  categoryCourse[]

@@ -1,15 +1,15 @@
-import type {request} from "express";
+import type {Request} from "express";
 
-
+import { AccountType } from "../../types/model_type";
 export type courseFilterRequest = Request & {
     query:{
-     search:string,
-       page:string,
-       limit:string,
-       sort:string,
-       order:"asc" | "desc",
-       minPrice:string,
-       maxPrice:string,
+     search?:string,
+       page?:string,
+       limit?:string,
+       sort?:string,
+       order?:"asc" | "desc",
+       minPrice?:string,
+       maxPrice?:string,
     }
 }
 
@@ -23,4 +23,23 @@ export interface courseInfo {
         lte?:number
     },
    
+}
+
+
+export type courseCreateRequest = Request & {
+      body:{
+        title:string,
+        description:string ,
+        price:number,
+        categoryId:string,
+        courseTopics:string[]
+      };
+      user:{
+        personId: string;
+        role?: AccountType;
+      };
+      file:{
+        filename:string
+      }
+     
 }
