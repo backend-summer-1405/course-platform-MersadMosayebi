@@ -4,6 +4,7 @@ import {response_Handler,custom_Error} from "../../middleware/response_hanlder.t
 
 
 import "dotenv/config";
+import type{ courseFilterRequest, courseInfo } from "./course_types.ts";
 
 
 //user/admin
@@ -28,79 +29,76 @@ import "dotenv/config";
 //     res.status(200).json({status:"success",data:product});
 // }
 
-// const getAllProducts = async (req, res,next) => {
-//    try{
-//      const{
-//        search,
-//        page=1,
-//        limit=10,
-//        sort="price",
-//        order = "asc",
-//        minPrice,
-//        maxPrice,
-//      } =req.query
+const getAllCourses = async (req:courseFilterRequest, res:Response) => {
+
+     const{
+       search,
+       page=1,
+       limit=10,
+       sort="price",
+       order = "asc",
+       minPrice,
+       maxPrice,
+     } =req.query
    
-//      let where = {};
+     let where:courseInfo = {};
     
+     
+     if (search) {
+      where.title = {
+        contains: search,
+      };
+    }
 
-//      if (search) {
-//       where.title = {
-//         contains: search,
-//       };
-//     }
-
-//      if(minPrice || maxPrice){
+     if(minPrice || maxPrice){
         
-//       where.price = {};
+      where.price = {};
 
-//       if (minPrice) {
-//         where.price.gte = Number(minPrice);
-//       }
+      if (minPrice) {
+        where.price.gte = Number(minPrice);
+      }
 
-//       if (maxPrice) {
-//         where.price.lte = Number(maxPrice);
-//       }
-//      }
+      if (maxPrice) {
+        where.price.lte = Number(maxPrice);
+      }
+     }
 
-//      let Page = Number(page);
-//      let Limit = Number(limit);
-//      const skip = (Page - 1) * Limit;
+     let Page = Number(page);
+     let Limit = Number(limit);
+     const skip = (Page - 1) * Limit;
 
-//      const products = await prisma.product.findMany({
-//       where,
-//       skip,
-//       take:Limit,
-//       orderBy:{
-//         [sort]:order === "desc" ? "desc" : "asc"
-//       },
-//       include:{
-//         images:true,categories:true
-//       }
-//      })
-
-
-//      const totalProduct = await prisma.product.count({})
-//     const totalPage = Math.ceil(totalProduct/Limit);
-
-//     res.status(200).json({
-//       status: "success",
-
-//        pagination: {
-//        currentPage: Page,
-//        limit:Limit,
-//        totalProducts : totalProduct,
-//        totalPage:totalPage,
-//        },
-//       count:products.length,
-//       data: products
-//     });
+     const courses = await prisma.course.findMany({
+      where,
+      skip,
+      take:Limit,
+      orderBy:{
+        [sort]:order === "desc" ? "desc" : "asc"
+      },
+      include:{
+        category:true,
+        courseImage:true,
+        courseTopic:true,
+      }
+     })
 
 
-//    }catch(error){
-//     next(error)
-//    }
+     const totalProduct = await prisma.course.count({})
+    const totalPage = Math.ceil(totalProduct/Limit);
 
-// };
+    res.status(200).json({
+      status: "success",
+
+       pagination: {
+       currentPage: Page,
+       limit:Limit,
+       totalcourses : totalProduct,
+       totalPage:totalPage,
+       },
+      count:courses.length,
+      data: courses
+    });
+
+};
 
 
 // ///admin
@@ -409,7 +407,7 @@ export default{
 //   deleteProduct_Category,
 //   editProduct,
 //   deleteProduct,
-//   getAllProducts,
+     getAllCourses,
 //   getProductDBbyId,
 
 //   getUser_Favorite,

@@ -45,6 +45,8 @@ model Person {
   deviceSessions DeviceSession[]
   ownedLinks     LinkedAccount[] @relation("Owner")
   linkedFrom     LinkedAccount[] @relation("Linked")
+
+   favorite favoriteCourse[]
 }
 
 // ============ Session ============
@@ -114,15 +116,19 @@ model TeacherProfile {
   id              String   @id @default(uuid())
   personId        String   @unique
   bio             String?
-
+  
   degree          String
   fieldOfwork     String
   experienceYears Int
+
+  linkdinLink   String?
   
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
-
+  
   person          Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  course course[]
 }
 
 model AuthorProfile {
@@ -194,6 +200,67 @@ model Wallet {
 
 model course {
       id     String     @id @default(uuid())
+      title  String    
+      description  String
+      price       Int
+      teacherName  String?
+      isPublished Boolean  @default(false)
+      createdAt   DateTime @default(now())
+      updatedAt   DateTime @updatedAt
+    
+      teacherId    String?
+      teacher      TeacherProfile?    @relation(fields: [teacherId], references: [id])
+
+      courseTopic  courseTopic[]
+      courseImage courseImage[]
+      category  categoryCourse[]
+      favorite favoriteCourse[]
+}   
+
+
+model courseTopic{
+    id     Int     @id @default(autoincrement())
+    courseId  String
+    topicName  String
+
+    courseLesson courseLesson[]
+
+    course  course @relation(fields: [courseId],references: [id],onDelete: Cascade)
+    
+}
+
+model courseLesson {
+    id     String     @id @default(uuid())
+    courseTopicId  Int
+    lessonName  String
+    videoUrl   String
+
+    courseTopic  courseTopic @relation(fields: [courseTopicId],references: [id],onDelete: Cascade)
+} 
+
+model courseImage{
+   id Int @id @default(autoincrement())
+   url String
+   courseId String
+   course course @relation(fields: [courseId], references: [id],onDelete: Cascade)
+}
+
+model categoryCourse{
+   id Int @id @default(autoincrement())
+   name String @unique
+   courses course[]
+
+}
+
+model favoriteCourse{
+   id Int @id @default(autoincrement())
+   personId String  
+   courseId String 
+
+   person Person @relation(fields: [personId],references: [id],onDelete: Cascade)
+   course course @relation(fields: [courseId],references: [id],onDelete:Cascade)
+
+   @@unique([personId,courseId])
 }
 
 
