@@ -4,30 +4,39 @@ import {response_Handler,custom_Error} from "../../middleware/response_hanlder.t
 
 
 import "dotenv/config";
-import type{ courseFilterRequest, courseInfo } from "./course_types.ts";
+import type{ courseCreateRequest, courseFilterRequest, courseInfo } from "./course_types.ts";
+
 
 
 //user/admin
 
-// const getProductDBbyId = async(req,res)=>{
-//     const {id} = req.params;
+const getcourseDBbyId = async(req:Request,res:Response)=>{
+    const id = req.params.id as string;
 
-//     if(!id) custom_Error("id isn't valid",400);
+    const course = await prisma.course.findFirst({
+      where:{
+        id
+      },
+      include:{
+        category:true,
+        courseImage:true
+      }
+    })
 
-//     const product = await prisma.product.findFirst({
-//       where:{
-//         id
-//       },
-//       include:{
-//         categories:true,
-//         images:true
-//       }
-//     })
+    if(!course) {
+        custom_Error("course not found",404);
+        return;
+    }
 
-//     if(!product) custom_Error("product not found",404);
-
-//     res.status(200).json({status:"success",data:product});
-// }
+   response_Handler({
+    statusCode:200,
+    message:"search Result",
+    data:{
+        course:course
+    },
+    res
+   })
+}
 
 const getAllCourses = async (req:courseFilterRequest, res:Response) => {
 
@@ -39,7 +48,7 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
        order = "asc",
        minPrice,
        maxPrice,
-     } =req.query
+     } =req.query;
    
      let where:courseInfo = {};
     
@@ -82,20 +91,23 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
      })
 
 
-     const totalProduct = await prisma.course.count({})
-    const totalPage = Math.ceil(totalProduct/Limit);
+     const totalcourse = await prisma.course.count({})
+    const totalPage = Math.ceil(totalcourse/Limit);
 
-    res.status(200).json({
-      status: "success",
-
+    response_Handler({
+      statusCode:200,
+      message:"all course result:",
+      data:{
        pagination: {
        currentPage: Page,
        limit:Limit,
-       totalcourses : totalProduct,
+       totalcourses : totalcourse,
        totalPage:totalPage,
        },
       count:courses.length,
       data: courses
+      },
+      res
     });
 
 };
@@ -103,312 +115,139 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
 
 // ///admin
 
-// const createProduct = async(req,res,next)=>{
-//   try{
-//   const {
-//      title,
-//      description ,
-//      stock,
-//      price,
-//      category_ids 
-//   } =req.body
-
-//   const product = await prisma.product.findFirst({
-//     where:{
-//       title
-//     }
-//   })
-//   if(product) custom_Error("conflict,product exist with same title",409);
-
-//   const Data = {
-//     title,
-//     description,
-//     stock,
-//     price,
-//     ...(category_ids.length !== 0 && {
-//     categories: {
-//       connect: category_ids.map((id) => ({
-//         id: Number(id)
-//       }))
-//     }
-//   })
-//   };
-
-//   const data = await prisma.product.create({
-//     data:Data,
-//     include:{
-//       categories:true
-//     }
-//   })
-
-//   res.status(201).json({status:"success",message:`the product ${title} is created`,data:data});
-
-// }catch(error){
-//   next(error)
-// }
-
+const createCourse = async(req:courseCreateRequest,res:Response)=>{
   
+  const {
+     title,
+     description,
+     price,
+     categoryId,
+     courseTopics
+  } =req.body
 
-// }
+  const courseCover = req.file;
 
-// const addProduct_Category = async(req,res,next)=>{
-
-//     try{
-//         const {category_ids,product_id} = req.body;
-
-//         const theproduct = await prisma.product.findFirst({
-//           where:{
-//             id:product_id
-//           }
-//         })
-//         if(!theproduct) custom_Error("product not found",404);
-       
-//         const product = await prisma.product.update({
-//            where:{
-//             id:product_id
-//            },
-//            data:{
-//            categories:{
-//            connect:category_ids.map((id)=>({
-//              id:Number(id)
-//            }))
-//            }},
-//            include:{
-//             categories:true
-//            }
-
-//         })
-
-//         res.status(200).json({
-//             status:"success",
-//             message:"product added to categories",
-//             data:product
-//         })
-
-//     }catch(error){
-//        next(error)
-//     }
-
-// }
-
-// const deleteProduct_Category = async(req,res,next)=>{
-
-//     try{
-//         const {category_ids,product_id} = req.body;
-       
-//         const product = await prisma.product.update({
-//            where:{
-//             id:product_id
-//            },
-//            data:{
-//            categories:{
-//            disconnect:category_ids.map((id)=>({
-//              id:Number(id)
-//            }))
-//            }},
-//            include:{
-//             categories:true
-//            }
-
-//         })
-
-//         res.status(200).json({
-//             status:"success",
-//             message:"product added to categories",
-//             data:product
-//         })
-
-//     }catch(error){
-//        next(error)
-//     }
-
-// }
+  console.log('Multer result:', req.file);
+console.log('Content-Type:', req.headers['content-type']);
 
 
-// const editProduct = async(req,res,next)=>{
+  if (!req.file) {
+       custom_Error("no image uploaded", 400);
+       return;
+    }
+  const personId = req.user?.personId;
 
-//   try{
-//   const {id} = req.params;
-//   const {
-//      title,
-//      description ,
-//      stock,
-//      price 
-//   } =req.body
+  if(!personId){
+    custom_Error("not authorized",401);
+    return;
+  }
 
-//     if(!id) custom_Error("id isn't valid",400);
+  // if(!courseCover){
+  //    custom_Error("no courseCover uploaded",400);
+  //    return
+  // }
 
-//     const theProduct = await prisma.product.findFirst({
-//       where:{
-//         id
-//       }
-//     })
+  const category = await prisma.categoryCourse.findUnique({
+    where: { id: Number(categoryId) },
+  });
+  if (!category) {
+    custom_Error("category not found", 404);
+    return;
+  }
 
-
-//     if(!theProduct) custom_Error("product not found",404);
-
-//     const product = await prisma.product.update({
-//       where:{
-//         id
-//       },
-//       data:{
-//         title,
-//         description,
-//         price,
-//         stock
-//       }
-//     })
-
-//     res.status(200).json({status:"sucess",message:"the product update successfully",data:product});
-
-//   }catch(error){
-//     next(error)
-//   }
-
+    const person = await prisma.person.findUnique({
+     where: { id: personId,role:"Teacher",teacherProfile:{isActive:true} },
+     select: {
+        displayName: true,
+        teacherProfile:{
+            select:{
+                id:true
+            }
+        }
+        },
+      });
 
     
-// }
-
-// const deleteProduct = async(req,res)=>{
-//     const {id} = req.params;
-
-//     if(!id) custom_Error("id isn't valid",400);
-
-//     const theProduct = await prisma.product.findFirst({
-//       where:{
-//         id
-//       }
-//     })
-
-//      if(!theProduct) custom_Error("product not found",404);
-
-//     const product = await prisma.product.delete({
-//       where:{
-//         id
-//       }
-//     })
-
-//     res.status(200).json({status:"success",message:"the product is removed",data:product});
-
-
-// }
-
-
-// //favorite
-
-// const addProduct_favorite = async(req,res,next)=>{
-
-//   try{
-     
-//   const {product_id,user_id} = req.params;
-  
-//   if(!product_id || !user_id) custom_Error("bad request,product or user id isn't valid",400);
-
-//   const user = await prisma.user.findFirst({
-//       where:{
-//         id:user_id
-//       }
-//     })
-
-//     if(!user) custom_Error("user not found",404);
-
-//     const product = await prisma.product.findFirst({
-//       where:{
-//         id:product_id
-//       }
-//     })
-//     if(!product) custom_Error("product not found",404);
-
-//     const theFavorite = await prisma.favorite.findFirst({
-//       where:{
-//         user_id,
-//         product_id
-//       }
-//     })
-
-//     if(theFavorite) custom_Error("this product added to favorited",409);
-
-//   const favorite = await prisma.favorite.create({
-//     data:{
-//       user_id,
-//       product_id
-//     },include:{
-//       product:true
-//     }
-//   })
-
-//   res.status(200).json({status:"success",message:"product be favorite",data:favorite});
-// }catch(error){
-//   next(error)
-// }
-
-// }
-
-// const getUser_Favorite =async(req,res,next)=>{
-//    try{
-//     const {id} = req.params;
+  const topics = JSON.parse(courseTopics); 
    
-//     if(!id) custom_Error("bad request,id isn't valid",400);
+  if (topics.length === 0) {
+    custom_Error("courseTopics is required", 400);
+    return;
+  }
 
-//     const user = await prisma.user.findFirst({
-//       where:{
-//         id
-//       }
-//     })
+  const baseUrl = process.env.BASE_URL;
 
-//     if(!user) custom_Error("user not found",404);
+  const theCourseCoverUrl = `${baseUrl}/uploads/course/${courseCover.filename}`;
 
-//     const favorite = await prisma.favorite.findMany({
-//       where:{
-//         user_id:id
-//       },include:{
-//         product:true
-//       }
-//     })
+  const newCourse = await prisma.course.create({
+    data: {
+      title,
+      description,
+      price: Number(price),
+      courseCoverUrl: theCourseCoverUrl,
+      
+      teacherName:person?.displayName ?? null,
+      
+      teacherId:   person?.teacherProfile?.id   ?? null,
+      
+      category: {
+        connect: { id: Number(categoryId) },
+      },
 
-//     res.status(200).json({status:"success",message:"favorite result:",data:favorite})
-//    }catch(error){
-//     next(error)
-//    }
-// }
+      courseTopic: {
+        create: topics.map((topicName:string) => ({ topicName })),
+      },
+    },
+    include: {
+      courseTopic: true,
+      category:    true,
+    },
+  });
 
-// const deleteProduct_favorite = async(req,res,next)=>{
+response_Handler({
+    statusCode:201,
+    message:"course created successfully",
+    data:{
+        course:newCourse
+    },
+    res
+})
+    
+}
 
-//   try{
-//      const {product_id,user_id} = req.params;
-  
-//   if(!product_id || !user_id) custom_Error("bad request,product or user id isn't valid",400);
 
-//   const favorite = await prisma.favorite.findFirst({
-//     where:{
-//       product_id,
-//       user_id
-//     }
-//   })
 
-//   if(!favorite) custom_Error("the product not in favorite list",409);
+const deleteCourse = async(req:Request,res:Response)=>{
+    const id = req.params.id as string;
 
-//   const theFavorite = await prisma.favorite.delete({
-//     where:{
-//       id:favorite.id
-//     }
-//   })
+    const theCourse = await prisma.course.delete({
+      where:{id}
+    })
 
-//   res.status(200).json({status:"success",message:"favorite removed",data:theFavorite});
-// }catch(error){
-//   next(error)
-// }
-// }
+    if(!theCourse){
+      custom_Error("no course found",404);
+      return;
+    }
+
+    response_Handler({
+      statusCode:200,
+      message:"course removed",
+      data:{theCourse},
+      res
+    })
+}  
+
 
 
 export default{
-//   createProduct,
+     createCourse,
 //   addProduct_Category,
 //   deleteProduct_Category,
 //   editProduct,
 //   deleteProduct,
      getAllCourses,
-//   getProductDBbyId,
+    getcourseDBbyId,
+    deleteCourse,
 
 //   getUser_Favorite,
 //   deleteProduct_favorite,
