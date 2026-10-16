@@ -4,7 +4,7 @@ import {response_Handler,custom_Error} from "../../middleware/response_hanlder.t
 
 
 import "dotenv/config";
-import type{ courseCreateRequest, courseFilterRequest, courseInfo } from "./course_types.ts";
+import type{ courseCreateRequest, courseFilterRequest, courseInfo, createLessonRequest } from "./course_types.ts";
 
 
 
@@ -86,7 +86,11 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
       include:{
         category:true,
         courseImage:true,
-        courseTopic:true,
+        courseTopic:{
+          include:{
+            courseLesson:true
+          }
+        },
       }
      })
 
@@ -126,9 +130,6 @@ const createCourse = async(req:courseCreateRequest,res:Response)=>{
   } =req.body
 
   const courseCover = req.file;
-
-  console.log('Multer result:', req.file);
-console.log('Content-Type:', req.headers['content-type']);
 
 
   if (!req.file) {
@@ -238,9 +239,107 @@ const deleteCourse = async(req:Request,res:Response)=>{
 }  
 
 
+//lesson
+
+
+const addCourseTopics = async(req:Request,res:Response)=>{
+
+}
+
+const getCourseTopics =async(req:Request,res:Response)=>{
+     
+  const id = req.params.id as string;
+
+   const topics = await prisma.courseTopic.findMany({
+    where:{courseId:id},
+    include:{
+       courseLesson:true, 
+    }
+   })
+
+   response_Handler({
+    statusCode:200,
+    message:"topics result",
+    data:{topics},
+    res
+   })
+
+}
+
+const deleteCourseTopics = async(req:Request,res:Response)=>{
+
+}
+
+const createLesson = async(req:createLessonRequest,res:Response)=>{
+
+  const {
+     topicId,
+     lessonName,
+  }= req.body
+
+  const videoName = req.file;
+
+   if (!req.file) {
+       custom_Error("no image uploaded", 400);
+       return;
+    }
+
+   const id = req.params.id as string ;
+
+   const topicID = Number(topicId);
+
+   if(!Number(topicID)){
+    custom_Error("bad requset,topicId must be Intiger",400);
+    return;
+   }
+
+   const courseTopics = await prisma.courseTopic.findFirst({
+      where:{id:topicID,courseId:id}
+   })
+
+   if(!courseTopics){
+      custom_Error("courseTopics not found",404);
+      return;
+   }
+
+   const baseUrl = process.env.BASE_URL;
+
+  const videoUrl = `${baseUrl}/uploads/course/lesson/${videoName.filename}`;
+
+   const courseLesson = await prisma.courseLesson.create({
+       data:{
+          courseTopicId:courseTopics.id,
+          lessonName:lessonName,
+          videoUrl:videoUrl
+       }
+      
+   })
+
+
+   response_Handler({
+     statusCode:200,
+     message:"lesson created successfully",
+     data:{courseLesson},
+     res
+   })
+
+
+
+   
+
+}
+
+const deleteLesson = async(req:Request,res:Response)=>{
+  
+}
+
+
 
 export default{
      createCourse,
+     createLesson,
+     getCourseTopics,
+
 //   addProduct_Category,
 //   deleteProduct_Category,
 //   editProduct,

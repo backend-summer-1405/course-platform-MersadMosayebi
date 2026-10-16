@@ -43,3 +43,14 @@ export type courseCreateRequest = Request & {
       }
      
 }
+
+
+export type createLessonRequest = Request & {
+     body:{
+       topicId:string,
+       lessonName:string
+     };
+     file:{
+      filename:string
+     }
+}

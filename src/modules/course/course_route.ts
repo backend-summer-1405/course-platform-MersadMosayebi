@@ -7,13 +7,13 @@ import { validate } from "../../middleware/error_middleware.ts";
 
 import { authenticate_access,authenticate_temp } from "../../middleware/authenticate.ts";
 import { authorize } from "../../middleware/authorize.ts";
-import { courseImage_Uploader } from "../../util/file.util.ts";
-
-
-
+import { courseImage_Uploader,courseLessonVideo_Uploader } from "../../util/file.util.ts";
 
 
 //category
+
+course_route.get("/:id/topics",course_Controller.getCourseTopics);
+course_route.post("/lesson/:id",courseLessonVideo_Uploader.single("video"),course_Controller.createLesson);
 
 course_route.get("/getAllcategories",category_controller.getAllCourseCategory);
 course_route.post("/category",category_controller.createCategory);
@@ -25,6 +25,7 @@ course_route.delete("/:id",course_Controller.deleteCourse);
 
 course_route.post("/",authenticate_access,courseImage_Uploader.single("course"),authorize(["Admin","Teacher"]),validate(course_validation.course_Validation)
 ,course_Controller.createCourse);
+
 
 
 
