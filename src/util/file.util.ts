@@ -25,11 +25,13 @@ const userImageUpload = new imageUploader("user/profileImage");
 const userResumeUpload = new imageUploader("user/resume");
 
 const courseImageUpload = new imageUploader("course");
+const courseLessonVideoUpload = new imageUploader("course/lesson");
 
 const userImage_Uploader = multer({storage : userImageUpload.diskStorage});
 const courseImage_Uploader = multer({storage : courseImageUpload.diskStorage});
 const userResume_Uploader = multer({storage : userResumeUpload.diskStorage});
+const courseLessonVideo_Uploader = multer({storage : courseLessonVideoUpload.diskStorage});
 
 
 
-export {courseImage_Uploader,userImage_Uploader,userResume_Uploader};
+export {courseImage_Uploader,userImage_Uploader,userResume_Uploader,courseLessonVideo_Uploader};

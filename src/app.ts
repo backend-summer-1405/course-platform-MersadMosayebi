@@ -14,6 +14,7 @@ app.use(express.json());
 app.use("/uploads/user/resume",express.static("src/uploads/user/resume"));
 app.use("/uploads/user/profileImage",express.static("src/uploads/user/profileImage"));
 app.use("/uploads/course",express.static("src/uploads/course"));
+app.use("/uploads/course/lesson",express.static("src/uploads/course/lesson"));
 
 app.use("/user",auth_route,user_route);
 app.use("/course",course_route);
