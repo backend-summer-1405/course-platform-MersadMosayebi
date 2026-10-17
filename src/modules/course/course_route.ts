@@ -10,18 +10,20 @@ import { authorize } from "../../middleware/authorize.ts";
 import { courseImage_Uploader,courseLessonVideo_Uploader } from "../../util/file.util.ts";
 
 
-//category
 
+//lesson and topic part
 course_route.get("/:id/topics",course_Controller.getCourseTopics);
-course_route.post("/lesson/:id",courseLessonVideo_Uploader.single("video"),course_Controller.createLesson);
+course_route.post("/lesson/:id",authenticate_access,authorize(["Admin","Teacher"]),courseLessonVideo_Uploader.single("video"),course_Controller.createLesson);
 
+//category
 course_route.get("/getAllcategories",category_controller.getAllCourseCategory);
-course_route.post("/category",category_controller.createCategory);
+course_route.post("/category",authenticate_access,authorize(["Admin"]),category_controller.createCategory);
 
 
+//course
 course_route.get("/getAllCourseWithPagination",course_Controller.getAllCourses);
 course_route.get("/:id",course_Controller.getcourseDBbyId);
-course_route.delete("/:id",course_Controller.deleteCourse);
+course_route.delete("/:id",authenticate_access,authorize(["Admin","Teacher"]),course_Controller.deleteCourse);
 
 course_route.post("/",authenticate_access,courseImage_Uploader.single("course"),authorize(["Admin","Teacher"]),validate(course_validation.course_Validation)
 ,course_Controller.createCourse);

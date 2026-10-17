@@ -5,7 +5,7 @@ import type { NextFunction,Request,Response } from "express";
 import type { AuthRequest,tokenType} from "../types/model_type.ts";
 
 
-const authenticate_access = (req:AuthRequest,res:Response,next:NextFunction)=>{
+const authenticate_access = (req:Request,res:Response,next:NextFunction)=>{
     
      let token = req.headers['authorization'];
      token = token?.split(" ")[1];
@@ -28,7 +28,7 @@ const authenticate_access = (req:AuthRequest,res:Response,next:NextFunction)=>{
 
 }
 
-const authenticate_temp = (req:AuthRequest,res:Response,next:NextFunction)=>{
+const authenticate_temp = (req:Request,res:Response,next:NextFunction)=>{
     
      let token = req.headers['authorization'];
      token = token?.split(" ")[1];

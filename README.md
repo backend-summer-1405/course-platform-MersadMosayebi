@@ -15,6 +15,8 @@ course platform API, built with Node.js, Express, Typescript, and Postgresql Dat
  -- *express* 
  -- *typescript*
  -- *nodemon*
+ -- *tsx*
+ -- *tsup*
  -- *dotenv*
  -- *prisma + postgresql*
  -- *express-validator*

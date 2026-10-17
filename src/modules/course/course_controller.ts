@@ -17,9 +17,14 @@ const getcourseDBbyId = async(req:Request,res:Response)=>{
       where:{
         id
       },
-      include:{
+       include:{
         category:true,
-        courseImage:true
+        courseImage:true,
+        courseTopic:{
+          include:{
+            courseLesson:true
+          }
+        },
       }
     })
 
@@ -83,21 +88,13 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
       orderBy:{
         [sort]:order === "desc" ? "desc" : "asc"
       },
-      include:{
-        category:true,
-        courseImage:true,
-        courseTopic:{
-          include:{
-            courseLesson:true
-          }
-        },
-      }
+      
      })
 
 
      const totalcourse = await prisma.course.count({})
     const totalPage = Math.ceil(totalcourse/Limit);
-
+   
     response_Handler({
       statusCode:200,
       message:"all course result:",
@@ -119,7 +116,7 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
 
 // ///admin
 
-const createCourse = async(req:courseCreateRequest,res:Response)=>{
+const createCourse = async(req:Request,res:Response)=>{
   
   const {
      title,
@@ -129,7 +126,7 @@ const createCourse = async(req:courseCreateRequest,res:Response)=>{
      courseTopics
   } =req.body
 
-  const courseCover = req.file;
+  const courseCover = req.file as {filename:string};
 
 
   if (!req.file) {
@@ -270,14 +267,14 @@ const deleteCourseTopics = async(req:Request,res:Response)=>{
 
 }
 
-const createLesson = async(req:createLessonRequest,res:Response)=>{
+const createLesson = async(req:Request,res:Response)=>{
 
   const {
      topicId,
      lessonName,
   }= req.body
 
-  const videoName = req.file;
+  const videoName = req.file as {filename:string};
 
    if (!req.file) {
        custom_Error("no image uploaded", 400);

@@ -9,7 +9,14 @@ import {auth_route} from "./modules/auth/auth_route.ts";
 const app = express();
 const port = process.env.PORT;
 
+
+
 app.use(express.json());
+
+app.get('/test-route', (req:Request, res:Response) => {
+  console.log("TEST ROUTE HIT!");
+  res.send("WORKING!");
+});
 
 app.use("/uploads/user/resume",express.static("src/uploads/user/resume"));
 app.use("/uploads/user/profileImage",express.static("src/uploads/user/profileImage"));
@@ -24,6 +31,9 @@ app.get("/",(req:Request,res:Response)=>{
 
     res.status(200).send("<style>body{background:black} h1{color:red}</style><h1>course platform server is running . . .</h1>");
 });
+
+
+
 
 app.use(globalError_Middleware);
 app.listen(port,():void=>console.log(`server is running on port:${port}`));

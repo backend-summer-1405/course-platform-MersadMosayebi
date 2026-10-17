@@ -1,6 +1,6 @@
 import type {Request} from "express";
 
-import { AccountType } from "../../types/model_type";
+import { AccountType } from "../../types/model_type.ts";
 export type courseFilterRequest = Request & {
     query:{
      search?:string,
@@ -33,10 +33,6 @@ export type courseCreateRequest = Request & {
         price:number,
         categoryId:string,
         courseTopics:string[]
-      };
-      user:{
-        personId: string;
-        role?: AccountType;
       };
       file:{
         filename:string

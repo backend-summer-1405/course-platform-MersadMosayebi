@@ -20,7 +20,8 @@ import { AccountType} from "../../types/model_type.ts"
 
 const user_Count = async(req:Request,res:Response)=>{
    
-  const [user, teacher, author] = await Promise.all([
+  const [totalUser ,user, teacher, author] = await Promise.all([
+    prisma.person.count({}),
     prisma.person.count({ where: { role: AccountType.User } }),
     prisma.person.count({ where: { role: AccountType.Teacher } }),
     prisma.person.count({ where: { role: AccountType.Author } }),
@@ -29,7 +30,7 @@ const user_Count = async(req:Request,res:Response)=>{
   response_Handler({
     statusCode: 200,
     message: 'roles count result',
-    data: { user:user, teacher:teacher, author:author},
+    data: { totalUser:totalUser,user:user, teacher:teacher, author:author},
     res,
   });
 
@@ -96,6 +97,8 @@ const getUserProfile = async(req:Request,res:Response)=>{
             teacherProfile:{where:{isActive:true}},
             adminProfile:{where:{isActive:true}},
             authorProfile:{where:{isActive:true}}
+        },omit:{
+            password:true
         }
     })
     
