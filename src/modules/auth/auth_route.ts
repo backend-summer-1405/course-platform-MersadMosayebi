@@ -30,8 +30,8 @@ auth_route.post("/step1_forgetPassword",...validate(auth_validation.step1_forget
 auth_route.post("/step2_resetPassword",...validate(auth_validation.step2_resetPassword_Validation),auth_Controller.step2_resetPassword);
 
 //for admin
-auth_route.get("/getAllLinkAccount",auth_Controller.getAllLinKAccount);
-auth_route.get("/getAllDevice",auth_Controller.getAllDevice);
+auth_route.get("/getAllLinkAccount",authenticate_access,auth_Controller.getAllLinKAccount);
+auth_route.get("/getAllDevice",authenticate_access,auth_Controller.getAllDevice);
 
 
 

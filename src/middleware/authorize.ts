@@ -6,7 +6,7 @@ import type { AuthRequest,tokenType} from "../types/model_type.ts";
 import { AccountType } from "../types/model_type.ts";
 
 const authorize = (roles:AccountType[])=> {
-   return (req:AuthRequest,res:Response,next:NextFunction)=>{
+   return (req:Request,res:Response,next:NextFunction)=>{
     
     const user = req.user as tokenType;
     const Role = user.role as AccountType;

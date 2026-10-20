@@ -22,12 +22,19 @@ const body_Validation = () => body().isObject({ strict: true }).withMessage("req
     
 const register_Validation = [
      body_Validation()
-        .custom((value) => (value.email !== undefined) !== (value.phoneNumber !== undefined))
-        .withMessage("provide exactly one of email or phoneNumber"),
+        .custom((value) => Boolean(value?.email || value?.phoneNumber))
+        .withMessage("At least one of email or phoneNumber must be provided"),
     email_Validation().optional(),
     phone_Validation().optional(),
     password_Validation(8),
+
+    /*
+    .custom((value) => (value.email !== undefined) !== (value.phoneNumber !== undefined))
+        .withMessage("provide exactly one of email or phoneNumber"), 
+    */
 ];
+
+
 
 const login_Validation = [
     body_Validation()
@@ -73,7 +80,7 @@ const switchAccount_Validation = [
     body_Validation(),
     body("targetPersonId")
      .isUUID().withMessage("targetPersonId isn't valid"),
-    body(" switchToken")
+    body("switchToken")
      .isString().withMessage("switchToken isn't valid"), 
 
 

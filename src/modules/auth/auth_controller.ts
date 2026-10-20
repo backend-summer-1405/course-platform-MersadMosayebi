@@ -115,7 +115,7 @@ const step1_forgetPassword = async(req:step1_ForgetPassword,res:Response)=>{
     const code = await prisma.otpCode.create({
         data:{
             personId : person.id,
-            otpCode : Hash_OTPCode,
+             otpCode : Hash_OTPCode,
             expiresAt : new Date(Date.now() + 60*20*1000)
         }
     })
@@ -126,7 +126,8 @@ const step1_forgetPassword = async(req:step1_ForgetPassword,res:Response)=>{
         statusCode:200,
         message:"code sent",
         data:{
-           code:OTPCode
+          //  code:OTPCode
+          message:"code sent"
         },
         res
     })
