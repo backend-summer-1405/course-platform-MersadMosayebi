@@ -331,6 +331,125 @@ const deleteLesson = async(req:Request,res:Response)=>{
 }
 
 
+//favorite
+
+const favoriteCourse = async(req:Request,res:Response)=>{
+
+  const id = req.params.id as string;
+
+  const courseId = req.body;
+  
+  // if(!product_id || !user_id) custom_Error("bad request,product or user id isn't valid",400);
+
+  const user = await prisma.person.findFirst({
+      where:{
+        id
+      }
+    })
+
+    if(!user) custom_Error("user not found",404);
+
+    const product = await prisma.course.findFirst({
+      where:{
+        id:courseId
+      }
+    })
+    if(!product) custom_Error("product not found",404);
+
+    const theFavorite = await prisma.favoriteCourse.findFirst({
+      where:{
+        personId:id,
+        courseId:courseId
+      }
+    })
+
+    if(theFavorite) custom_Error("this product added to favorited",409);
+
+  const favorite = await prisma.favoriteCourse.create({
+    data:{
+      personId:id,
+      courseId:courseId
+    },include:{
+      course:true
+    }
+  })
+
+  response_Handler({
+    statusCode:200,
+    message:"course is favorited",
+    data:{favorite},
+    res
+  });
+
+}
+
+const getFavoriteById =async(req:Request,res:Response)=>{
+   
+    const id = req.params.id as string;
+   
+    // if(!id) custom_Error("bad request,id isn't valid",400);
+
+    const user = await prisma.person.findFirst({
+      where:{
+        id
+      }
+    })
+
+    if(!user) custom_Error("user not found",404);
+
+    const favorite = await prisma.favoriteCourse.findMany({
+      where:{
+        personId:id
+      },include:{
+        course:true
+      }
+    })
+
+   response_Handler({
+    statusCode:200,
+    message:"result",
+    data:{favorite},
+    res
+  });
+  
+}
+
+const deleteFavoriteCourse = async(req:Request,res:Response)=>{
+
+  
+     const id = req.params.id as string;
+     const courseId = req.body;
+  
+  // if(!product_id || !user_id) custom_Error("bad request,product or user id isn't valid",400);
+
+  const favorite = await prisma.favoriteCourse.findFirst({
+    where:{
+      personId:id,
+      courseId:courseId
+    }
+  })
+
+  if(!favorite) {
+    custom_Error("the product not in favorite list",409);
+    return;
+  }
+
+  const theFavorite = await prisma.favoriteCourse.delete({
+    where:{
+      id:favorite.id
+    }
+  })
+
+   response_Handler({
+    statusCode:200,
+    message:"favorite removed",
+    data:{theFavorite},
+    res
+  });
+
+}
+
+
 
 export default{
      createCourse,
@@ -345,8 +464,8 @@ export default{
     getcourseDBbyId,
     deleteCourse,
 
-//   getUser_Favorite,
-//   deleteProduct_favorite,
-//   addProduct_favorite
+  getFavoriteById,
+  deleteFavoriteCourse,
+  favoriteCourse
   
 }
