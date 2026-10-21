@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "CommentCourse" ALTER COLUMN "like" SET DEFAULT 0,
+ALTER COLUMN "disLike" SET DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "ReplyCourseComment" ALTER COLUMN "like" SET DEFAULT 0,
+ALTER COLUMN "disLike" SET DEFAULT 0;

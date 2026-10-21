@@ -450,6 +450,55 @@ const deleteFavoriteCourse = async(req:Request,res:Response)=>{
 }
 
 
+//rating
+
+ const rateCourse = async(req:Request,res:Response)=>{
+
+  const courseId = req.params.id as string;
+  const personId = req.user?.personId
+ 
+  const {rating} = req.body;
+
+  if(typeof personId !== "string"){
+    return;
+  }
+
+  if(!Number(rating) || Number(rating) <= 0 || Number(rating) > 5){
+    return;
+  }
+
+  await prisma.$transaction(async (pr) => {
+    
+    await pr.courseRating.upsert({
+      where: { courseId_personId: { personId, courseId } },
+      update: { score:rating },
+      create: { personId, courseId, score:rating },
+    });
+
+    const result = await pr.courseRating.aggregate({
+      where: { courseId },
+      _avg: { score: true },
+      _count: { score: true },
+    });
+
+    await pr.course.update({
+      where: { id: courseId },
+      data: {
+         rateAvg: result._avg.score ?? 0,
+         rateCount: result._count.score,
+      },
+    });
+  });
+
+  response_Handler({
+    statusCode:200,
+    message:"",
+    data:{},
+    res
+  })
+}
+
+
 
 export default{
      createCourse,
@@ -466,6 +515,8 @@ export default{
 
   getFavoriteById,
   deleteFavoriteCourse,
-  favoriteCourse
+  favoriteCourse,
+
+  rateCourse
   
 }
