@@ -2,6 +2,7 @@ import express from "express";
 const course_route = express.Router();
  import course_Controller from "./course_controller.ts";
  import category_controller from "./category_controller.ts";
+ import comment_controller from "./comment_controller.ts";
 import { validate } from "../../middleware/error_middleware.ts";
  import course_validation from "./course_validation.ts";
 
@@ -18,7 +19,21 @@ course_route.post("/",authenticate_access,courseImage_Uploader.single("course"),
 
 course_route.post("/:id/rate",authenticate_access,course_Controller.rateCourse);
 
+//favorite
+course_route.get("/favorite/:id",authenticate_access,course_Controller.getFavoriteById);
+course_route.post("/favorite/:id",authenticate_access,course_Controller.favoriteCourse);
+course_route.delete("/favorite/:id",authenticate_access,course_Controller.deleteFavoriteCourse);
+
 //comment
+course_route.get("/:id/comment",comment_controller.getCourseComment);
+course_route.post("/:id/comment",authenticate_access,comment_controller.commentCourse);
+course_route.post("/likecomment/:id",authenticate_access,comment_controller.likeCommentCourse);
+course_route.post("/dislikecomment/:id",authenticate_access,comment_controller.disLikeCommentCourse);
+
+//reply
+course_route.post("/comment/:id/reply",authenticate_access,comment_controller.replyCommentCourse);
+course_route.post("/likereply/:id",authenticate_access,comment_controller.likeReplyCommentCourse);
+course_route.post("/dislikereply/:id",authenticate_access,comment_controller.disLikeReplyCommentCourse);
 
 
 //lesson and topic part

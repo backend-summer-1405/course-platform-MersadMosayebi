@@ -20,6 +20,7 @@ const getcourseDBbyId = async(req:Request,res:Response)=>{
        include:{
         category:true,
         courseImage:true,
+        comment:true,
         courseTopic:{
           include:{
             courseLesson:true
@@ -337,7 +338,7 @@ const favoriteCourse = async(req:Request,res:Response)=>{
 
   const id = req.params.id as string;
 
-  const courseId = req.body;
+  const {courseId} = req.body;
   
   // if(!product_id || !user_id) custom_Error("bad request,product or user id isn't valid",400);
 
@@ -418,7 +419,7 @@ const deleteFavoriteCourse = async(req:Request,res:Response)=>{
 
   
      const id = req.params.id as string;
-     const courseId = req.body;
+     const {courseId} = req.body;
   
   // if(!product_id || !user_id) custom_Error("bad request,product or user id isn't valid",400);
 
