@@ -115,7 +115,7 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
 };
 
 
-// ///admin
+
 
 const createCourse = async(req:Request,res:Response)=>{
   
@@ -158,6 +158,7 @@ const createCourse = async(req:Request,res:Response)=>{
      where: { id: personId,role:"Teacher",teacherProfile:{isActive:true} },
      select: {
         displayName: true,
+        id:true,
         teacherProfile:{
             select:{
                 id:true
@@ -187,7 +188,7 @@ const createCourse = async(req:Request,res:Response)=>{
       
       teacherName:person?.displayName ?? null,
       
-      teacherId:   person?.teacherProfile?.id   ?? null,
+      teacherId:   person?.id   ?? null,
       
       category: {
         connect: { id: Number(categoryId) },
@@ -214,6 +215,68 @@ response_Handler({
     
 }
 
+const editCourse = async(req:Request,res:Response)=>{
+   const courseId = req.params.id as string;
+
+   const {
+     title,
+      description,
+      price,
+   } = req.body;
+
+   const theCourse = await prisma.course.update({
+    where:{id:courseId},
+    data:{
+      title,
+      description,
+      price,
+    }
+   })
+
+   if(!theCourse){
+    custom_Error("course not found",404);
+   }
+
+   response_Handler({
+    statusCode:200,
+    message:"course edited",
+    data:{theCourse},
+    res
+   })
+}
+
+// ///admin
+
+const checkedCoursePublish = async(req:Request,res:Response)=>{
+      const id = req.params.id as string;
+
+    const course = await prisma.course.findFirst({
+      where:{
+        id
+      }
+    })
+
+    if(!course || course.isPublished === true) {
+        custom_Error("course not found or course published before",404);
+        return;
+    }
+
+    const theCourse = await prisma.course.update({
+      where:{id:course.id},
+      data:{
+        isPublished:true
+      }
+    })
+
+   response_Handler({
+    statusCode:200,
+    message:"course published",
+    data:{
+        course:theCourse
+    },
+    res
+   })
+}
 
 
 const deleteCourse = async(req:Request,res:Response)=>{
@@ -503,6 +566,7 @@ const deleteFavoriteCourse = async(req:Request,res:Response)=>{
 
 export default{
      createCourse,
+     editCourse,
      createLesson,
      getCourseTopics,
 
@@ -513,6 +577,7 @@ export default{
      getAllCourses,
     getcourseDBbyId,
     deleteCourse,
+    checkedCoursePublish,
 
   getFavoriteById,
   deleteFavoriteCourse,

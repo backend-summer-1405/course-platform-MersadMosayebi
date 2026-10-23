@@ -51,6 +51,8 @@ course_route.post("/category",authenticate_access,authorize(["Admin"]),category_
 course_route.get("/getAllCourseWithPagination",course_Controller.getAllCourses);
 course_route.get("/:id",course_Controller.getcourseDBbyId);
 course_route.delete("/:id",authenticate_access,authorize(["Admin","Teacher"]),course_Controller.deleteCourse);
+course_route.patch("/:id",authenticate_access,authorize(["Admin","Teacher"]),course_Controller.editCourse);
+course_route.patch("/:id/checked",authenticate_access,authorize(["Admin"]),course_Controller.checkedCoursePublish);
 
 
 

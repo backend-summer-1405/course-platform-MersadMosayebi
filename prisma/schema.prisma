@@ -7,6 +7,45 @@ datasource db {
   provider = "postgresql"
 }
 
+//payment
+
+enum TransactionType {
+  Deposit
+  Purchase
+  Sale_Income
+  Commission
+  Withdraw
+  Withdraw_Refund
+  Salary
+}
+
+enum PaymentPurpose { 
+    Wallet
+    Charge
+    Course
+    Podcast
+ }
+enum PaymentStatus { 
+     Pending
+     Processing
+     Success
+     Failed
+}
+
+enum WithdrawStatus {
+    Pending
+    Paid
+    Rejected
+ }
+ 
+
+ enum BankAccountStatus {
+     Pending
+     Approved
+     Rejected 
+  }
+
+//
 enum AccountType {
   User
   Teacher
@@ -25,6 +64,9 @@ enum LikeType {
   DisLike
 }
 
+
+
+
 // ============ Person ============
 
 model Person {
@@ -40,6 +82,7 @@ model Person {
   role           AccountType     @default(User)
 
   teacherProfile TeacherProfile?
+  course course[]
   authorProfile  AuthorProfile?
   adminProfile   AdminProfile?
   wallet         Wallet?
@@ -59,6 +102,10 @@ model Person {
    reply   ReplyCourseComment[]
    commentLike LikeCommentCourse[]
    replyLike   LikeReplyCommentCourse[]
+
+   bankAccount BankAccount[]
+   payments    Payment[]
+   purchases   Purchase[]
 
 }
 
@@ -141,7 +188,7 @@ model TeacherProfile {
   
   person          Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
 
-  course course[]
+  
 }
 
 model AuthorProfile {
@@ -160,6 +207,7 @@ model AdminProfile {
   personId  String   @unique
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
+  isFinance Boolean @default(false)   // if admin is for payment change it true;
 
   person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
 }
@@ -196,7 +244,7 @@ model TeacherFormRequest {
   person Person @relation(fields: [personId],references: [id],onDelete:Cascade)
 }
 
-// ============ Wallet ============
+// ============ Wallet and Payment ============
 
 model Wallet {
   id        String   @id @default(uuid())
@@ -206,7 +254,98 @@ model Wallet {
   updatedAt DateTime @updatedAt
 
   person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  transactions WalletTransaction[]
+   withdraws WithdrawRequest[]
 }
+
+model WalletTransaction {
+  id           String          @id @default(uuid())
+  walletId     String
+  amount       Int          // -Number = withdraw / +Number=deposit
+  balanceAfter Int
+  type         TransactionType
+  description  String?
+  createdAt    DateTime        @default(now())
+
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt])
+}
+
+model WithdrawRequest {
+  id            String         @id @default(uuid())
+  walletId      String
+  bankAccountId String
+  amount        Int
+  sheba         String         // sheba of bankcard
+  status        WithdrawStatus @default(Pending)
+  trackingCode  String?
+  reviewedById  String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  wallet      Wallet      @relation(fields: [walletId], references: [id])
+  bankAccount BankAccount @relation(fields: [bankAccountId], references: [id])
+}
+
+model BankAccount {
+  id           String            @id @default(cuid())
+  firstName    String
+  lastName     String
+  nationalCode String
+  shebaNumber  String            @unique  
+  phoneNumber  String
+  status       BankAccountStatus @default(Pending)
+  isDefault    Boolean           @default(false)
+
+  personId     String
+  person       Person            @relation(fields: [personId], references: [id])
+
+  withdraws    WithdrawRequest[]
+
+  createdAt    DateTime          @default(now())
+  verifiedAt   DateTime?
+
+  @@index([personId])
+}
+
+model Purchase {
+  id            String   @id @default(uuid())
+  buyerId       String
+  courseId      String?
+  podcastId     String?
+  price         Int
+  teacherShare  Int
+  platformShare Int
+  createdAt     DateTime @default(now())
+
+  buyer Person @relation(fields: [buyerId], references: [id])
+
+  @@unique([buyerId, courseId])
+  @@unique([buyerId, podcastId])
+}
+
+
+
+
+model Payment {
+  id        String         @id @default(uuid())
+  personId  String
+  amount    Int
+  purpose   PaymentPurpose
+  courseId  String?
+  podcastId String?
+  authority String?        @unique
+  refId     String?
+  cardPan   String?
+  status    PaymentStatus  @default(Pending)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  person Person @relation(fields: [personId], references: [id])
+}
+
 
 
 // ============ course ============
@@ -223,7 +362,7 @@ model course {
       updatedAt   DateTime @updatedAt
       
       teacherId    String?
-      teacher      TeacherProfile?    @relation(fields: [teacherId], references: [id])
+      teacher     Person?    @relation(fields: [teacherId], references: [id])
   
       courseTopic  courseTopic[]
       courseImage courseImage[]
@@ -245,8 +384,8 @@ model courseRating {
   personId  String
   createdAt DateTime @default(now())
 
-  course    course   @relation(fields: [courseId], references: [id])
-  person    Person   @relation(fields: [personId], references: [id])
+  course    course   @relation(fields: [courseId], references: [id],onDelete: Cascade)
+  person    Person   @relation(fields: [personId], references: [id],onDelete: Cascade)
 
   @@unique([courseId, personId]) 
 }

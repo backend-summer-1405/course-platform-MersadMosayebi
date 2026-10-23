@@ -5,6 +5,7 @@ import "dotenv/config";
 import { user_route } from "./modules/user/user_route.ts";
 import { course_route } from "./modules/course/course_route.ts";
 import {auth_route} from "./modules/auth/auth_route.ts";
+import {wallet_route} from "./modules/wallet/wallet_route.ts"
 
 const app = express();
 const port = process.env.PORT;
@@ -25,6 +26,7 @@ app.use("/uploads/course/lesson",express.static("src/uploads/course/lesson"));
 
 app.use("/user",auth_route,user_route);
 app.use("/course",course_route);
+app.use("/wallet",wallet_route);
 
  
 app.get("/",(req:Request,res:Response)=>{
