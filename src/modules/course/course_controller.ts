@@ -54,6 +54,7 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
        order = "asc",
        minPrice,
        maxPrice,
+       category
      } =req.query;
    
      let where:courseInfo = {};
@@ -63,6 +64,14 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
       where.title = {
         contains: search,
       };
+    }
+
+    if(category){
+      where.category = {
+         some: {
+           name: { contains: category, mode: "insensitive" },
+         },
+      }
     }
 
      if(minPrice || maxPrice){
@@ -89,6 +98,9 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
       orderBy:{
         [sort]:order === "desc" ? "desc" : "asc"
       },
+      include:{
+        category:true
+      }
       
      })
 

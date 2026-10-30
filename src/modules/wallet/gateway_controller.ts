@@ -53,7 +53,7 @@ type ItemType = "Course" | "Podcast"
   }
 
 
-  // ۱. payment Pending
+  //  payment Pending
   const payment = await prisma.payment.create({
     data: {
       personId: personId,
@@ -322,12 +322,10 @@ const verifyPayment = async (req: Request, res: Response) => {
 
 
 
-
-
-
 const getAllPayment = async(req:Request,res:Response)=>{
 
-   const payments = await prisma.payment.findMany({})
+   const payments = await prisma.payment.findMany({
+   })
 
    const serialized = payments.map((p) => ({
     ...p,
@@ -342,8 +340,40 @@ const getAllPayment = async(req:Request,res:Response)=>{
    })
 }
 
+const getAllPurchase = async(req:Request,res:Response)=>{
+
+   const purchase = await prisma.purchase.findMany({
+    
+   })
+
+   
+   response_Handler({
+    statusCode:200,
+    message:"purchase list",
+    data:{purchase},
+    res
+   })
+}
+
+const getAllTransaction = async(req:Request,res:Response)=>{
+
+   const purchase = await prisma.walletTransaction.findMany({
+    
+   })
+
+   
+   response_Handler({
+    statusCode:200,
+    message:"transaction list",
+    data:{purchase},
+    res
+   })
+}
+
 export default {
   getAllPayment ,
     buyWithGateway,
-    verifyPayment
+    verifyPayment,
+    getAllTransaction,
+    getAllPurchase
 }

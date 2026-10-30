@@ -18,6 +18,7 @@ const response_Handler = ({statusCode,message,data,res}:response_Handler)=>{
   });
 }
 
+
 const custom_Error = (message:string = "internal error",statusCode:number = 500) => {
   
   const newError:any = new Error(message);
