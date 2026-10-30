@@ -127,8 +127,6 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
 };
 
 
-
-
 const createCourse = async(req:Request,res:Response)=>{
   
   const {
@@ -574,7 +572,7 @@ const deleteFavoriteCourse = async(req:Request,res:Response)=>{
   })
 }
 
-
+//
 
 export default{
      createCourse,

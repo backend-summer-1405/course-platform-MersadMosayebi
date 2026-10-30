@@ -12,8 +12,9 @@ import { courseImage_Uploader,courseLessonVideo_Uploader } from "../../util/file
 
 //wallet
 
-wallet_route.get("/:id",authenticate_access,wallet_controller.getUserWallet);
 wallet_route.post("/payment/walletBalance",authenticate_access,wallet_controller.buyWithWallet);
+wallet_route.post("/charge",authenticate_access,wallet_controller.chargeWallet);
+wallet_route.get("/charge/verify",wallet_controller.verifyChargeWallet)
 
 
 //gateway
@@ -22,6 +23,9 @@ wallet_route.get("/purchase",authenticate_access,gateway_controller.getAllPurcha
 wallet_route.get("/transaction",authenticate_access,gateway_controller.getAllTransaction);
 wallet_route.post("/payment/gateway",authenticate_access,gateway_controller.buyWithGateway);
 wallet_route.get("/payment/verify",gateway_controller.verifyPayment);
+
+
+wallet_route.get("/:id",authenticate_access,wallet_controller.getUserWallet);
 
 export {
     wallet_route

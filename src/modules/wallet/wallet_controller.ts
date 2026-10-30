@@ -10,6 +10,194 @@ const ZARINPAL_MERCHANT_ID = process.env.ZARINPAL_MERCHANT_ID;
 
 type ItemType = "Course" | "Podcast"
 
+const MIN_CHARGE = 10000;
+const MAX_CHARGE = 500000000;
+
+const chargeWallet = async (req: Request, res: Response) => {
+  const personId = req.user?.personId;
+  const amount = Number(req.body.amount);
+
+  if (typeof personId !== "string") {
+    custom_Error("unauthorized", 401);
+    return;
+  }
+
+  if (!Number.isInteger(amount) || amount < MIN_CHARGE || amount > MAX_CHARGE) {
+    custom_Error(`amount must be an integer between ${MIN_CHARGE} and ${MAX_CHARGE}`, 400);
+    return;
+  }
+
+  const theWallet = await prisma.wallet.findFirst({ where: { personId } });
+  if (!theWallet) {
+    custom_Error("user wallet not found", 404);
+    return;
+  }
+
+  
+  const payment = await prisma.payment.create({
+    data: {
+      personId,
+      amount,
+      status: "Pending",
+      purpose : "Charge"
+    },
+  });
+
+  const response = await fetch(`${ZARINPAL_BASE}/pg/v4/payment/request.json`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      merchant_id: ZARINPAL_MERCHANT_ID,
+      amount,
+      callback_url: `${process.env.BASE_URL}/wallet/charge/verify`,
+      description: "chargin wallet",
+      metadata: { personId },
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok || data.data?.code !== 100) {
+    await prisma.payment.update({
+      where: { id: payment.id },
+      data: { status: "Failed" },
+    });
+    custom_Error(data.errors?.message || "connecting to gateway failed", 500);
+    return;
+  }
+
+  const authority = data.data.authority;
+
+  await prisma.payment.update({
+    where: { id: payment.id },
+    data: { authority },
+  });
+
+  response_Handler({
+    statusCode: 200,
+    message: "payment pending",
+    data: { paymentUrl: `${ZARINPAL_BASE}/pg/StartPay/${authority}` },
+    res,
+  });
+};
+
+
+const verifyChargeWallet = async (req: Request, res: Response) => {
+  const { Authority, Status } = req.query;
+
+  const payment = await prisma.payment.findUnique({
+    where: { authority: Authority as string },
+  });
+
+  if (!payment) {
+    custom_Error("payment not found", 404);
+    return;
+  }
+
+  if (payment.purpose !== "Charge") {
+    custom_Error("this payment is not a wallet charge", 400);
+    return;
+  }
+
+  if (payment.status === "Success") {
+    response_Handler({
+      statusCode: 200,
+      message: "payment already verified",
+      data: { payment: { ...payment, amount: payment.amount.toString() } },
+      res,
+    });
+    return;
+  }
+
+  if (Status !== "OK") {
+    const thePay = await prisma.payment.update({
+      where: { id: payment.id },
+      data: { status: "Failed" },
+    });
+    response_Handler({
+      statusCode: 400,
+      message: "payment failed",
+      data: { thePay: { ...thePay, amount: thePay.amount.toString() } },
+      res,
+    });
+    return;
+  }
+
+  const response = await fetch(`${ZARINPAL_BASE}/pg/v4/payment/verify.json`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      merchant_id: ZARINPAL_MERCHANT_ID,
+      amount: Number(payment.amount),
+      authority: Authority,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (data.data?.code === 100 || data.data?.code === 101) {
+    const result = await prisma.$transaction(async (tx) => {
+      const pay = await tx.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: "Success",
+          refId: String(data.data.ref_id),
+          cardPan: data.data.card_pan,
+        },
+      });
+
+      const amount = Number(payment.amount);
+
+      const wallet = await tx.wallet.update({
+        where: { personId: payment.personId },
+        data: { balance: { increment: amount } },
+      });
+
+      await tx.walletTransaction.create({
+        data: {
+          walletId: wallet.id,
+          amount,
+          type: "Deposit",
+          balanceAfter: wallet.balance, 
+          description: `شارژ کیف پول - پرداخت #${pay.id}`,
+        },
+      });
+
+      return { pay, wallet };
+    });
+
+    response_Handler({
+      statusCode: 200,
+      message: "wallet charged successfully",
+      data: {
+        payment: { ...result.pay, amount: result.pay.amount.toString() },
+        balance: result.wallet.balance,
+      },
+      res,
+    });
+    return;
+  }
+
+  const failed = await prisma.payment.update({
+    where: { id: payment.id },
+    data: { status: "Failed" },
+  });
+
+  response_Handler({
+    statusCode: 400,
+    message: "payment failed",
+    data: { thepayment: { ...failed, amount: failed.amount.toString() } },
+    res,
+  });
+};
+
+
 const getUserWallet = async(req:Request,res:Response)=>{
     
     const id = req.params.id as string;
@@ -112,6 +300,28 @@ const buyWithWallet = async(req:Request,res:Response)=>{
       },
     });
 
+    const theUserWallet = await tx.wallet.update({
+      where:{personId : personId},
+      data : {balance: {decrement : Number(amount)}}
+    })
+    
+     if(!theUserWallet){
+       custom_Error("user wallet not found",404);
+       return;
+    }
+    
+    await tx.walletTransaction.create({
+           data: {
+             walletId: theUserWallet.id,
+             amount: amount,
+             type: "Purchase",
+             balanceAfter: theUserWallet.balance,
+             description: `خردید ${itemType === "Course" ? `خرید دوره ${courseId}` : `خرید پادکست ${podcastId}`}`,
+           },
+         });
+
+
+
     // deposit to the teacherWallet
     const teacherWallet = await tx.wallet.update({
       where: { personId: teacherId },
@@ -164,8 +374,14 @@ const buyWithWallet = async(req:Request,res:Response)=>{
 }
 
 
+
+
+
+
 export default {
     getUserWallet,
-    buyWithWallet
+    buyWithWallet,
+    chargeWallet,
+    verifyChargeWallet
   
 }
