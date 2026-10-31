@@ -1,0 +1,1775 @@
+{
+	"info": {
+		"_postman_id": "e9e287ab-e90a-4170-99bb-300b6170f7bb",
+		"name": "course_platform_API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49187642",
+		"_collection_link": "https://mosaybimersvd020-6774566.postman.co/workspace/course_platform_API~83f0b6fa-e24f-4088-acbe-e4ca09c46342/collection/49187642-e9e287ab-e90a-4170-99bb-300b6170f7bb?action=share&source=collection_link&creator=49187642"
+	},
+	"item": [
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "wallet",
+					"item": [
+						{
+							"name": "buyWithGateway",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n   \"itemId\":\"031e27cc-e6fa-47ef-8f94-12dbe3cdccce\",\r\n   \"itemType\":\"Course\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/wallet/payment/gateway",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"wallet",
+										"payment",
+										"gateway"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getUserWalletById",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/wallet/:id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"wallet",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "49a42b58-91d2-4458-8c0c-d3cb1e50fc80"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "buyWithWallet",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n   \"itemId\":\"1f92e5ca-e307-4fa5-9abe-6d28c4935f64\",\r\n   \"itemType\":\"Course\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/wallet/payment/walletBalance",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"wallet",
+										"payment",
+										"walletBalance"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "chargeWallet",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"amount\":50000000\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/wallet/charge",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"wallet",
+										"charge"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "teacher",
+					"item": [
+						{
+							"name": "teacherFormRequest",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {}
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "resume",
+											"type": "file",
+											"src": "/C:/Users/mosay/Documents/Web Docs/resume/Mersad_Mosayebi_CV.pdf"
+										},
+										{
+											"key": "personId",
+											"value": "b5a789d1-bad5-48a0-8868-ef69a4efc858",
+											"type": "text"
+										},
+										{
+											"key": "fullName",
+											"value": "مرصاد مسیبی",
+											"type": "text"
+										},
+										{
+											"key": "ID_Card",
+											"value": "2082220542",
+											"type": "text"
+										},
+										{
+											"key": "birthDate",
+											"value": "1383/11/19",
+											"type": "text"
+										},
+										{
+											"key": "fieldOfwork",
+											"value": "front-end",
+											"type": "text"
+										},
+										{
+											"key": "experienceYears",
+											"value": "2",
+											"type": "text"
+										},
+										{
+											"key": "degree",
+											"value": "bachelor’s degree",
+											"type": "text"
+										},
+										{
+											"key": "AcceptRulesOfWebSite",
+											"value": "true",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/user/teacherFormRequest",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"teacherFormRequest"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getTeacherFormById",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{base_url}}/user/teacherFormRequest/:id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"user",
+										"teacherFormRequest",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "5e63e783-e1a4-4d21-a25c-2e3756804ed1"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"mosayebimersad21@gmail.com\",\r\n    \"password\":\"123456782\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "login",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-device-id",
+								"value": "my-test-device-001",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"email\":\"mosayebimersad21@gmail.com\",\r\n    \"password\":\"123456782\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "switchAccount",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "x-device-id",
+								"value": "my-test-device-001",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"switchToken\":\"debae4cae8e15978903263d236756236ba627f07fa915f605f43d24508bd7d8c\",\r\n     \"targetPersonId\":\"b5a789d1-bad5-48a0-8868-ef69a4efc858\"\r\n     \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/switchAccount",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"switchAccount"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "step1_forgetPassword",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"mosaybimersvd020@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/step1_forgetPassword",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"step1_forgetPassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "step2_resetPassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"mosaybimersvd020@gmail.com\",\r\n    \"otpCode\":\"546037\",\r\n    \"password\":\"123456782\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/step2_resetPassword",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"step2_resetPassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refreshToken",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-device-id",
+								"value": "my-test-device-001",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n    \"refreshToken\":\"cf391020d2416c1d73ef4c7c7463886fd964177ff80864b70937bc270e917fab0acb5a1a7f5054e7\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/refreshToken",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"refreshToken"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "userBoard",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user/userBoard",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"userBoard"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "linkAccount",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-device-id",
+								"value": "my-test-device-001",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n   \"targetPersonId\":\"b5a789d1-bad5-48a0-8868-ef69a4efc858\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/linkAccount",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"linkAccount"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "adminFormRequest",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"phoneNumber\":\"09013681921\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/adminFormRequest/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"adminFormRequest",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "5e63e783-e1a4-4d21-a25c-2e3756804ed1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUserProfile",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user/profile/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user",
+								"profile",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "49a42b58-91d2-4458-8c0c-d3cb1e50fc80"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "course",
+			"item": [
+				{
+					"name": "category",
+					"item": [
+						{
+							"name": "createCourseCategory",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/course/category",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"course",
+										"category"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getAllCourseCategory",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"express.js\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/course/getAllcategories",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"course",
+										"getAllcategories"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "favorite",
+					"item": [
+						{
+							"name": "getFavoriteById",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/course/favorite/:id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"course",
+										"favorite",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "5e63e783-e1a4-4d21-a25c-2e3756804ed1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "favoriteCourse",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n   \"courseId\":\"54fce1de-c408-47bb-95fd-443136a67d0a\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/course/favorite/:id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"course",
+										"favorite",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "5e63e783-e1a4-4d21-a25c-2e3756804ed1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "removeFavoriteCourse",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"courseId\":\"54fce1de-c408-47bb-95fd-443136a67d0a\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/course/favorite/:id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"course",
+										"favorite",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "5e63e783-e1a4-4d21-a25c-2e3756804ed1"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "comment",
+					"item": [
+						{
+							"name": "reply",
+							"item": [
+								{
+									"name": "replyCommentCourse",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"comment\":\"not bad\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/course/comment/:id/reply",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"course",
+												"comment",
+												":id",
+												"reply"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "TogglelikeReplyCourse",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/course/likereply/:id",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"course",
+												"likereply",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "ToggledisLikeReplyCourse",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/course/dislikereply/:id",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"course",
+												"dislikereply",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "commentCourse",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"comment\":\"not bad course\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/course/:id/comment",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"course",
+										":id",
+										"comment"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "54fce1de-c408-47bb-95fd-443136a67d0a"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "getCoursecComment",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						},
+						{
+							"name": "TogglelikeCommentCourse",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/course/likecomment/:id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"course",
+										"likecomment",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ToggledisLikeCommentCourse",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/course/dislikecomment/:id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"course",
+										"dislikecomment",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "getAllCourseWithPagination",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/course/getAllCourseWithPagination?search=&limit=10&page=1&sortType&order=asc&minPrice&maxPrice&category=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course",
+								"getAllCourseWithPagination"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "sortType",
+									"value": null
+								},
+								{
+									"key": "order",
+									"value": "asc"
+								},
+								{
+									"key": "minPrice",
+									"value": null
+								},
+								{
+									"key": "maxPrice",
+									"value": null
+								},
+								{
+									"key": "category",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCourseById",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/course/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "49a42b58-91d2-4458-8c0c-d3cb1e50fc80"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createCourse",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "course",
+									"type": "file",
+									"src": "/C:/Users/mosay/Desktop/ts2.jpg"
+								},
+								{
+									"key": "title",
+									"value": "typescript",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": ".net core",
+									"type": "text"
+								},
+								{
+									"key": "price",
+									"value": "50000000",
+									"type": "text"
+								},
+								{
+									"key": "",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "categoryId",
+									"value": "5",
+									"type": "text"
+								},
+								{
+									"key": "courseTopics",
+									"value": "[\"component\"]",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/course",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteCourse",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/course/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "e46c5d87-9536-4bea-8d09-29fbd0cc151c"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getCourseTopics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/course/:id/topics",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course",
+								":id",
+								"topics"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "54fce1de-c408-47bb-95fd-443136a67d0a"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "createLesson",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "video",
+									"type": "file",
+									"src": "/C:/Users/mosay/Desktop/Recording 2026-10-16 105214.mp4"
+								},
+								{
+									"key": "lessonName",
+									"value": "handling authentication",
+									"type": "text"
+								},
+								{
+									"key": "topicId",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/course/lesson/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course",
+								"lesson",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "54fce1de-c408-47bb-95fd-443136a67d0a"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "rateCourse",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rating\":5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/course/:id/rate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course",
+								":id",
+								"rate"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "54fce1de-c408-47bb-95fd-443136a67d0a"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "editCourse",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"category\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/course/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"course",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "7a07fc47-2a33-4c89-9cc3-74c01f23ab9e"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "news",
+			"item": [
+				{
+					"name": "category",
+					"item": []
+				},
+				{
+					"name": "favorite",
+					"item": []
+				}
+			]
+		},
+		{
+			"name": "podcast",
+			"item": [
+				{
+					"name": "category",
+					"item": []
+				},
+				{
+					"name": "favorite",
+					"item": []
+				},
+				{
+					"name": "purchase",
+					"item": []
+				},
+				{
+					"name": "comment",
+					"item": [
+						{
+							"name": "reply",
+							"item": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "dashboard",
+			"item": [
+				{
+					"name": "user",
+					"item": []
+				},
+				{
+					"name": "teacher",
+					"item": []
+				}
+			]
+		},
+		{
+			"name": "panel",
+			"item": [
+				{
+					"name": "admin-panel",
+					"item": [
+						{
+							"name": "user",
+							"item": [
+								{
+									"name": "role",
+									"item": [
+										{
+											"name": "adminFormConfirm",
+											"request": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{base_url}}/user/roleAdmin/:id",
+													"host": [
+														"{{base_url}}"
+													],
+													"path": [
+														"user",
+														"roleAdmin",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "5e63e783-e1a4-4d21-a25c-2e3756804ed1"
+														}
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "roleAuthor",
+											"request": {
+												"method": "POST",
+												"header": [],
+												"url": {
+													"raw": "{{base_url}}/user/roleAuthor/:id",
+													"host": [
+														"{{base_url}}"
+													],
+													"path": [
+														"user",
+														"roleAuthor",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "194c9399-327c-465c-85e7-ae6a31ac3b4b"
+														}
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "getAllAdminFormRequest",
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "GET",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{base_url}}/user/getAllAdminFormRequest",
+													"host": [
+														"{{base_url}}"
+													],
+													"path": [
+														"user",
+														"getAllAdminFormRequest"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "teacherFormConfirm",
+											"request": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\r\n    \"status\" : \"Approved\",\r\n    \"rejectionReason\":\"\"\r\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{base_url}}/user/roleTeacher/:id",
+													"host": [
+														"{{base_url}}"
+													],
+													"path": [
+														"user",
+														"roleTeacher",
+														":id"
+													],
+													"variable": [
+														{
+															"key": "id",
+															"value": "b5a789d1-bad5-48a0-8868-ef69a4efc858"
+														}
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "getAllTeacherFormRequest",
+											"request": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{base_url}}/user/getAllTeacherFormRequest",
+													"host": [
+														"{{base_url}}"
+													],
+													"path": [
+														"user",
+														"getAllTeacherFormRequest"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "CheckedFinanceAdmin",
+											"request": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\r\n    \"adminId\":\"5e63e783-e1a4-4d21-a25c-2e3756804ed1\"\r\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{base_url}}/user/Admin/checkedFinance",
+													"host": [
+														"{{base_url}}"
+													],
+													"path": [
+														"user",
+														"Admin",
+														"checkedFinance"
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
+									"name": "getUserById",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/user/:id",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"user",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "49a42b58-91d2-4458-8c0c-d3cb1e50fc80"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "gellAllUser",
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/user",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"user"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "deleteUser",
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/user/delete/:id",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"user",
+												"delete",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "a562b42a-afb6-472a-bafd-e9e6b2e1a9cf"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getAllLinkAccount",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/user/getAllLinkAccount",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"user",
+												"getAllLinkAccount"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getAllDevice",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/user/getAllDevice",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"user",
+												"getAllDevice"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "course",
+							"item": [
+								{
+									"name": "checkedPublishCourse",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/course/:id/checked",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"course",
+												":id",
+												"checked"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": "d2fefb55-aedf-4a9b-9bbd-2032876c156a"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "wallet",
+							"item": [
+								{
+									"name": "getAllPayment",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{base_url}}/wallet/payment",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"wallet",
+												"payment"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getAllTransaction",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/wallet/transaction",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"wallet",
+												"transaction"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "getAllPurchase",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{base_url}}/wallet/purchase",
+											"host": [
+												"{{base_url}}"
+											],
+											"path": [
+												"wallet",
+												"purchase"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "author-panel",
+					"item": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": ""
+		},
+		{
+			"key": "token",
+			"value": ""
+		}
+	]
+}
