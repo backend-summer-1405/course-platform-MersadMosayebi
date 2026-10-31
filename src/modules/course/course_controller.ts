@@ -20,6 +20,7 @@ const getcourseDBbyId = async(req:Request,res:Response)=>{
        include:{
         category:true,
         courseImage:true,
+        comment:true,
         courseTopic:{
           include:{
             courseLesson:true
@@ -53,6 +54,7 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
        order = "asc",
        minPrice,
        maxPrice,
+       category
      } =req.query;
    
      let where:courseInfo = {};
@@ -62,6 +64,14 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
       where.title = {
         contains: search,
       };
+    }
+
+    if(category){
+      where.category = {
+         some: {
+           name: { contains: category, mode: "insensitive" },
+         },
+      }
     }
 
      if(minPrice || maxPrice){
@@ -88,6 +98,9 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
       orderBy:{
         [sort]:order === "desc" ? "desc" : "asc"
       },
+      include:{
+        category:true
+      }
       
      })
 
@@ -113,8 +126,6 @@ const getAllCourses = async (req:courseFilterRequest, res:Response) => {
 
 };
 
-
-// ///admin
 
 const createCourse = async(req:Request,res:Response)=>{
   
@@ -157,6 +168,7 @@ const createCourse = async(req:Request,res:Response)=>{
      where: { id: personId,role:"Teacher",teacherProfile:{isActive:true} },
      select: {
         displayName: true,
+        id:true,
         teacherProfile:{
             select:{
                 id:true
@@ -186,7 +198,7 @@ const createCourse = async(req:Request,res:Response)=>{
       
       teacherName:person?.displayName ?? null,
       
-      teacherId:   person?.teacherProfile?.id   ?? null,
+      teacherId:   person?.id   ?? null,
       
       category: {
         connect: { id: Number(categoryId) },
@@ -213,6 +225,68 @@ response_Handler({
     
 }
 
+const editCourse = async(req:Request,res:Response)=>{
+   const courseId = req.params.id as string;
+
+   const {
+     title,
+      description,
+      price,
+   } = req.body;
+
+   const theCourse = await prisma.course.update({
+    where:{id:courseId},
+    data:{
+      title,
+      description,
+      price,
+    }
+   })
+
+   if(!theCourse){
+    custom_Error("course not found",404);
+   }
+
+   response_Handler({
+    statusCode:200,
+    message:"course edited",
+    data:{theCourse},
+    res
+   })
+}
+
+// ///admin
+
+const checkedCoursePublish = async(req:Request,res:Response)=>{
+      const id = req.params.id as string;
+
+    const course = await prisma.course.findFirst({
+      where:{
+        id
+      }
+    })
+
+    if(!course || course.isPublished === true) {
+        custom_Error("course not found or course published before",404);
+        return;
+    }
+
+    const theCourse = await prisma.course.update({
+      where:{id:course.id},
+      data:{
+        isPublished:true
+      }
+    })
+
+   response_Handler({
+    statusCode:200,
+    message:"course published",
+    data:{
+        course:theCourse
+    },
+    res
+   })
+}
 
 
 const deleteCourse = async(req:Request,res:Response)=>{
@@ -331,9 +405,178 @@ const deleteLesson = async(req:Request,res:Response)=>{
 }
 
 
+//favorite
+
+const favoriteCourse = async(req:Request,res:Response)=>{
+
+  const id = req.params.id as string;
+
+  const {courseId} = req.body;
+  
+  // if(!product_id || !user_id) custom_Error("bad request,product or user id isn't valid",400);
+
+  const user = await prisma.person.findFirst({
+      where:{
+        id
+      }
+    })
+
+    if(!user) custom_Error("user not found",404);
+
+    const product = await prisma.course.findFirst({
+      where:{
+        id:courseId
+      }
+    })
+    if(!product) custom_Error("product not found",404);
+
+    const theFavorite = await prisma.favoriteCourse.findFirst({
+      where:{
+        personId:id,
+        courseId:courseId
+      }
+    })
+
+    if(theFavorite) custom_Error("this product added to favorited",409);
+
+  const favorite = await prisma.favoriteCourse.create({
+    data:{
+      personId:id,
+      courseId:courseId
+    },include:{
+      course:true
+    }
+  })
+
+  response_Handler({
+    statusCode:200,
+    message:"course is favorited",
+    data:{favorite},
+    res
+  });
+
+}
+
+const getFavoriteById =async(req:Request,res:Response)=>{
+   
+    const id = req.params.id as string;
+   
+    // if(!id) custom_Error("bad request,id isn't valid",400);
+
+    const user = await prisma.person.findFirst({
+      where:{
+        id
+      }
+    })
+
+    if(!user) custom_Error("user not found",404);
+
+    const favorite = await prisma.favoriteCourse.findMany({
+      where:{
+        personId:id
+      },include:{
+        course:true
+      }
+    })
+
+   response_Handler({
+    statusCode:200,
+    message:"result",
+    data:{favorite},
+    res
+  });
+  
+}
+
+const deleteFavoriteCourse = async(req:Request,res:Response)=>{
+
+  
+     const id = req.params.id as string;
+     const {courseId} = req.body;
+  
+  // if(!product_id || !user_id) custom_Error("bad request,product or user id isn't valid",400);
+
+  const favorite = await prisma.favoriteCourse.findFirst({
+    where:{
+      personId:id,
+      courseId:courseId
+    }
+  })
+
+  if(!favorite) {
+    custom_Error("the product not in favorite list",409);
+    return;
+  }
+
+  const theFavorite = await prisma.favoriteCourse.delete({
+    where:{
+      id:favorite.id
+    }
+  })
+
+   response_Handler({
+    statusCode:200,
+    message:"favorite removed",
+    data:{theFavorite},
+    res
+  });
+
+}
+
+
+//rating
+
+ const rateCourse = async(req:Request,res:Response)=>{
+
+  const courseId = req.params.id as string;
+  const personId = req.user?.personId
+ 
+  const {rating} = req.body;
+
+  if(typeof personId !== "string"){
+    return;
+  }
+
+  if(!Number(rating) || Number(rating) <= 0 || Number(rating) > 5){
+    return;
+  }
+
+  await prisma.$transaction(async (pr) => {
+    
+    await pr.courseRating.upsert({
+      where: { courseId_personId: { personId, courseId } },
+      update: { score:rating },
+      create: { personId, courseId, score:rating },
+    });
+
+    const result = await pr.courseRating.aggregate({
+      where: { courseId },
+      _avg: { score: true },
+      _count: { score: true },
+    });
+
+    await pr.course.update({
+      where: { id: courseId },
+      data: {
+         rateAvg: result._avg.score ?? 0,
+         rateCount: result._count.score,
+      },
+    });
+  });
+
+  response_Handler({
+    statusCode:200,
+    message:"",
+    data:{},
+    res
+  })
+}
+
+//
 
 export default{
      createCourse,
+     editCourse,
      createLesson,
      getCourseTopics,
 
@@ -344,9 +587,12 @@ export default{
      getAllCourses,
     getcourseDBbyId,
     deleteCourse,
+    checkedCoursePublish,
 
-//   getUser_Favorite,
-//   deleteProduct_favorite,
-//   addProduct_favorite
+  getFavoriteById,
+  deleteFavoriteCourse,
+  favoriteCourse,
+
+  rateCourse
   
 }

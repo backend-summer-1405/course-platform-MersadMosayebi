@@ -28,7 +28,7 @@ user_route.delete("/delete/:id",...validate(user_validation.Id_Validate),user_Co
 //admin role
 user_route.post("/adminFormRequest/:id",authenticate_access,authorize(["User","Author"]),validate(user_validation.Id_Validate),user_Controller.adminForm_Request);
 user_route.post("/roleAdmin/:id",authenticate_access,authorize(["Admin"]),validate(user_validation.adminRole_Validation),user_Controller.role_AdminProfile);
-
+user_route.post("/Admin/checkedFinance",authenticate_access,authorize(["Admin"]),user_Controller.checkedAdminFinance);
 //teacher role
 user_route.post("/teacherFormRequest",authenticate_access,authorize(["User","Admin"]),
 userResume_Uploader.single("resume"),validate(user_validation.teacherForm_Validation),user_Controller.createteacherFormRequest);

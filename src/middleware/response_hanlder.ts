@@ -1,6 +1,6 @@
 import type {NextFunction, Request, Response} from "express";
 
-type statusCode = 200|201|203|204|400|401|403|404|409|500;
+type statusCode = 200|201|203|204|400|401|403|404|409|500|-51;
 
 interface response_Handler {
     statusCode: statusCode,
@@ -17,6 +17,7 @@ const response_Handler = ({statusCode,message,data,res}:response_Handler)=>{
     data: data
   });
 }
+
 
 const custom_Error = (message:string = "internal error",statusCode:number = 500) => {
   

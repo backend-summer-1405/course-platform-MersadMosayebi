@@ -522,6 +522,52 @@ const getAllAdminFormRequest = async(req:Request,res:Response)=>{
     })
 }
 
+const checkedAdminFinance = async(req:Request,res:Response)=>{
+    const {adminId} = req.body;
+    
+    const admin = await prisma.adminProfile.findFirst({
+        where:{personId:adminId}
+    })
+
+
+    if(!admin){
+        custom_Error("user with adminRole not found",404);
+        return;
+    }
+    console.log(admin);
+    if(admin.isFinance === true){
+        custom_Error("you are already financeAdmin",409);
+        return;
+    }
+
+    const financeAdmin = await prisma.adminProfile.findMany({
+        where:{isFinance:true}
+    })
+
+    console.log(financeAdmin);
+
+    if(financeAdmin.length = 0){
+        custom_Error("there is a financeAdmin",403);
+        return;
+    }
+
+    const checked = await prisma.adminProfile.update({
+         where:{id:admin.id},
+         data:{
+            isFinance:true
+         }
+    })
+
+    response_Handler({
+        statusCode:200,
+        message:"admin upgrated to financeAdmin",
+        data:{message:"admin upgrated to financeAdmin"},
+        res
+    })
+
+
+}
+
 //author
 
  const role_AuthorProfile = async(req:adminRequest,res:Response)=>{
@@ -601,6 +647,7 @@ export default {
 
     adminForm_Request,
     role_AdminProfile,
+    checkedAdminFinance,
     role_AuthorProfile,
    getAllAdminFormRequest,
 

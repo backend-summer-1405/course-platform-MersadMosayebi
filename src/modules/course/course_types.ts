@@ -10,6 +10,7 @@ export type courseFilterRequest = Request & {
        order?:"asc" | "desc",
        minPrice?:string,
        maxPrice?:string,
+       category?:string
     }
 }
 
@@ -18,6 +19,11 @@ export interface courseInfo {
     title?:{
         contains: string;
     },
+    category?:{
+    some?:{
+      name:{contains:string,mode:"insensitive"}
+    }
+   },
     price?:{
         gte?:number,
         lte?:number

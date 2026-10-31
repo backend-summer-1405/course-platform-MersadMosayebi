@@ -7,6 +7,45 @@ datasource db {
   provider = "postgresql"
 }
 
+//payment
+
+enum TransactionType {
+  Deposit
+  Purchase
+  Sale_Income
+  Commission
+  Withdraw
+  Withdraw_Refund
+  Salary
+}
+
+enum PaymentPurpose { 
+    Wallet
+    Charge
+    Course
+    Podcast
+ }
+enum PaymentStatus { 
+     Pending
+     Processing
+     Success
+     Failed
+}
+
+enum WithdrawStatus {
+    Pending
+    Paid
+    Rejected
+ }
+ 
+
+ enum BankAccountStatus {
+     Pending
+     Approved
+     Rejected 
+  }
+
+//
 enum AccountType {
   User
   Teacher
@@ -19,6 +58,14 @@ enum FormRequestStatus {
    Approved
    Rejected
 }
+
+enum LikeType {
+  Like
+  DisLike
+}
+
+
+
 
 // ============ Person ============
 
@@ -35,18 +82,32 @@ model Person {
   role           AccountType     @default(User)
 
   teacherProfile TeacherProfile?
+  course course[]
   authorProfile  AuthorProfile?
   adminProfile   AdminProfile?
   wallet         Wallet?
   otpCode        otpCode[]
 
   teacherFormRequest TeacherFormRequest[]
+  adminFormRequest adminFormRequest[]
 
   deviceSessions DeviceSession[]
   ownedLinks     LinkedAccount[] @relation("Owner")
   linkedFrom     LinkedAccount[] @relation("Linked")
 
    favorite favoriteCourse[]
+
+   Rating courseRating[]
+
+   comment CommentCourse[]
+   reply   ReplyCourseComment[]
+   commentLike LikeCommentCourse[]
+   replyLike   LikeReplyCommentCourse[]
+
+   bankAccount BankAccount[]
+   payments    Payment[]
+   purchases   Purchase[]
+
 }
 
 // ============ Session ============
@@ -128,7 +189,7 @@ model TeacherProfile {
   
   person          Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
 
-  course course[]
+  
 }
 
 model AuthorProfile {
@@ -147,6 +208,7 @@ model AdminProfile {
   personId  String   @unique
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
+  isFinance Boolean @default(false)   // if admin is for payment change it true;
 
   person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
 }
@@ -159,6 +221,8 @@ model adminFormRequest {
    phoneNumber String?
    email       String?
    createdAt DateTime @default(now())
+
+   person Person @relation(fields: [personId],references: [id],onDelete: Cascade)
 
 }
 
@@ -183,7 +247,7 @@ model TeacherFormRequest {
   person Person @relation(fields: [personId],references: [id],onDelete:Cascade)
 }
 
-// ============ Wallet ============
+// ============ Wallet and Payment ============
 
 model Wallet {
   id        String   @id @default(uuid())
@@ -193,7 +257,99 @@ model Wallet {
   updatedAt DateTime @updatedAt
 
   person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  transactions WalletTransaction[]
+   withdraws WithdrawRequest[]
 }
+
+model WalletTransaction {
+  id           String          @id @default(uuid())
+  walletId     String
+  amount       Int          // -Number = withdraw / +Number=deposit
+  balanceAfter Int
+  type         TransactionType
+  description  String?
+  createdAt    DateTime        @default(now())
+
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt])
+}
+
+model WithdrawRequest {
+  id            String         @id @default(uuid())
+  walletId      String
+  bankAccountId String
+  amount        Int
+  sheba         String         // sheba of bankcard
+  status        WithdrawStatus @default(Pending)
+  trackingCode  String?
+  reviewedById  String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  wallet      Wallet      @relation(fields: [walletId], references: [id])
+  bankAccount BankAccount @relation(fields: [bankAccountId], references: [id])
+}
+
+model BankAccount {
+  id           String            @id @default(cuid())
+  firstName    String
+  lastName     String
+  nationalCode String
+  shebaNumber  String            @unique  
+  phoneNumber  String
+  status       BankAccountStatus @default(Pending)
+  isDefault    Boolean           @default(false)
+
+  personId     String
+  person       Person            @relation(fields: [personId], references: [id])
+
+  withdraws    WithdrawRequest[]
+
+  createdAt    DateTime          @default(now())
+  verifiedAt   DateTime?
+
+  @@index([personId])
+}
+
+model Purchase {
+  id            String   @id @default(uuid())
+  buyerId       String
+  courseId      String?
+  podcastId     String?
+  price         Int
+  teacherShare  Int
+  platformShare Int
+  createdAt     DateTime @default(now())
+
+  buyer Person @relation(fields: [buyerId], references: [id])
+  course course? @relation(fields: [courseId],references: [id],onDelete: Cascade)
+
+  @@unique([buyerId, courseId])
+  @@unique([buyerId, podcastId])
+}
+
+
+
+
+model Payment {
+  id        String         @id @default(uuid())
+  personId  String
+  amount    Int
+  purpose   PaymentPurpose
+  courseId  String?
+  podcastId String?
+  authority String?        @unique
+  refId     String?
+  cardPan   String?
+  status    PaymentStatus  @default(Pending)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  person Person @relation(fields: [personId], references: [id])
+}
+
 
 
 // ============ course ============
@@ -210,13 +366,88 @@ model course {
       updatedAt   DateTime @updatedAt
       
       teacherId    String?
-      teacher      TeacherProfile?    @relation(fields: [teacherId], references: [id])
+      teacher     Person?    @relation(fields: [teacherId], references: [id])
+
+      purchasedCourse Purchase[]
   
       courseTopic  courseTopic[]
       courseImage courseImage[]
       category  categoryCourse[]
       favorite favoriteCourse[]
+
+      rateAvg      Float @default(0)
+      rateCount    Int   @default(0)
+      Rating       courseRating[]
+
+      comment CommentCourse[]
+
 }   
+
+model courseRating {
+  id        String   @id @default(uuid())
+  score     Int     
+  courseId  String
+  personId  String
+  createdAt DateTime @default(now())
+
+  course    course   @relation(fields: [courseId], references: [id],onDelete: Cascade)
+  person    Person   @relation(fields: [personId], references: [id],onDelete: Cascade)
+
+  @@unique([courseId, personId]) 
+}
+
+model CommentCourse {
+  id        Int           @id @default(autoincrement())
+  content   String
+  courseId  String
+  personId  String
+  course    course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  person    Person        @relation(fields: [personId], references: [id], onDelete: Cascade)
+  replies   ReplyCourseComment[]
+  like      Int   @default(0)
+  disLike   Int   @default(0)
+  likes     LikeCommentCourse[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model ReplyCourseComment {
+  id        Int         @id @default(autoincrement())
+  content   String
+  commentId Int
+  personId  String
+  comment   CommentCourse     @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  person    Person      @relation(fields: [personId], references: [id], onDelete: Cascade)
+  like      Int   @default(0)
+  disLike   Int   @default(0)
+  likes     LikeReplyCommentCourse[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model LikeCommentCourse {
+  id        Int      @id @default(autoincrement())
+  type      LikeType
+  commentId Int
+  personId  String
+  comment   CommentCourse  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, personId])
+}
+
+model LikeReplyCommentCourse {
+  id        Int      @id @default(autoincrement())
+  type      LikeType
+  replyId   Int
+  personId  String
+  reply     ReplyCourseComment   @relation(fields: [replyId], references: [id], onDelete: Cascade)
+  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([replyId, personId])
+}
 
 
 model courseTopic{
@@ -252,6 +483,8 @@ model categoryCourse{
    courses course[]
 
 }
+
+
 
 model favoriteCourse{
    id Int @id @default(autoincrement())
