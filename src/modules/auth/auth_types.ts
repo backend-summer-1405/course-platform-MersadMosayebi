@@ -1,5 +1,5 @@
 import type { Request } from "express"
-import type { AuthRequest } from "../../types/model_type";
+import type { AuthRequest } from "../../types/model_type.ts";
 
 
 export type registerRequest = Request & {

@@ -1,12 +1,9 @@
-export {};
+import type { tokenType } from "./model_type.ts";
 
 declare global {
   namespace Express {
     interface Request {
-      user?: {
-        personId: string; 
-        role?: string;    
-      };
+      user?: tokenType;
     }
   }
 }
