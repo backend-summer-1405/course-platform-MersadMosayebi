@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16
+    container_name: course-platform-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: Education_Course_DB
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    container_name: course-platform-api
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "postgresql://postgres:1234@db:5432/Education_Course_DB?schema=public"
+      PORT: "3001"
+    ports:
+      - "127.0.0.1:3001:3001"
+
+volumes:
+  postgres_data:
